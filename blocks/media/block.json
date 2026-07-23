@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "fa/media",
+  "title": "Media",
+  "category": "frontenda",
+  "icon": "format-image",
+  "parent": ["fa/section"],
+  "attributes": { "media": { "type": "object" } },
+  "supports": { "html": false, "reusable": false },
+  "editorScript": "frontenda-blocks-section-editor",
+  "editorStyle": "file:./editor.css"
+}

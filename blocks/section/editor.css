@@ -1,0 +1,83 @@
+.wp-block-fa-section {
+    padding: 24px;
+    border: 1px dashed #aeb5c2;
+    border-radius: 16px;
+    background: #f8f9fb;
+}
+
+.wp-block-fa-section > .block-editor-inner-blocks > .block-editor-block-list__layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.wp-block-fa-section > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block {
+    width: 100%;
+    max-width: none;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 18px;
+    border: 1px solid #d9dde7;
+    border-radius: 12px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.wp-block-fa-header > .block-editor-inner-blocks > .block-editor-block-list__layout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.wp-block-fa-header .wp-block-fa-subtitle,
+.wp-block-fa-header .wp-block-fa-title {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 12px 14px;
+    border-left: 3px solid #8c96a8;
+    background: #f5f7fa;
+    box-sizing: border-box;
+}
+
+.wp-block-fa-header .wp-block-fa-title {
+    border-left-color: #3858e9;
+}
+
+.wp-block-fa-subtitle > .block-editor-inner-blocks > .block-editor-block-list__layout,
+.wp-block-fa-title > .block-editor-inner-blocks > .block-editor-block-list__layout,
+.wp-block-fa-text > .block-editor-inner-blocks > .block-editor-block-list__layout,
+.wp-block-fa-buttons > .block-editor-inner-blocks > .block-editor-block-list__layout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wp-block-fa-subtitle .wp-block,
+.wp-block-fa-title .wp-block,
+.wp-block-fa-text .wp-block,
+.wp-block-fa-buttons .wp-block {
+    max-width: none;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.wp-block-fa-text {
+    border-left: 3px solid #00a32a !important;
+}
+
+.wp-block-fa-buttons {
+    border-left: 3px solid #dba617 !important;
+}
+
+.wp-block-fa-media {
+    border-left: 3px solid #9b51e0 !important;
+}
+
+.wp-block-fa-list {
+    border-left: 3px solid #007cba !important;
+}
+
+.wp-block-fa-section .block-list-appender {
+    margin-top: 8px;
+}

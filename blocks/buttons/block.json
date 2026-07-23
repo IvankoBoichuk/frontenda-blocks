@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "fa/buttons",
+  "title": "Buttons",
+  "category": "frontenda",
+  "icon": "button",
+  "parent": ["fa/section"],
+  "attributes": {},
+  "supports": { "html": false, "reusable": false },
+  "editorScript": "frontenda-blocks-section-editor"
+}

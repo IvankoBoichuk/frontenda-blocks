@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "fa/header",
+  "title": "Header",
+  "category": "frontenda",
+  "icon": "heading",
+  "parent": ["fa/section"],
+  "attributes": {},
+  "supports": { "html": false, "reusable": false },
+  "editorScript": "frontenda-blocks-section-editor"
+}

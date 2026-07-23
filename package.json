@@ -1,0 +1,32 @@
+{
+  "name": "frontenda-blocks",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "bin": {
+    "frontenda-blocks": "./bin/frontenda-blocks.ts"
+  },
+  "files": [
+    "bin/frontenda-blocks.ts"
+  ],
+  "scripts": {
+    "build": "bun node_modules/typescript/bin/tsc && bun build --target=browser --format=iife --outdir=blocks/section/build --sourcemap=external assets/src/index.tsx",
+    "typecheck": "bun node_modules/typescript/bin/tsc --noEmit",
+    "add-variant": "bun run ./bin/frontenda-blocks.ts add-variant",
+    "check": "bun run ./bin/frontenda-blocks.ts check"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/wordpress__block-editor": "^15.0.5",
+    "@wordpress/block-editor": "^15.22.0",
+    "@wordpress/blocks": "^15.22.0",
+    "@wordpress/components": "^32.4.0",
+    "@wordpress/compose": "^7.42.0",
+    "@wordpress/core-data": "^7.42.0",
+    "@wordpress/data": "^10.42.0",
+    "@wordpress/element": "^6.42.0",
+    "@wordpress/hooks": "^4.42.0",
+    "@wordpress/i18n": "^6.9.0",
+    "typescript": "^5.9.3"
+  }
+}

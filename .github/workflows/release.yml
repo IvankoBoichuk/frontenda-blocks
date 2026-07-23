@@ -1,0 +1,62 @@
+name: Build release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate metadata
+        run: bun run check
+
+      - name: Build editor assets
+        run: bun run build
+
+      - name: Package plugin
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          package_root="$RUNNER_TEMP/frontenda-blocks-package"
+          plugin_root="$package_root/frontenda-blocks"
+          archive_name="frontenda-blocks-${RELEASE_TAG}.zip"
+
+          mkdir -p "$plugin_root"
+          rsync -a ./ "$plugin_root/" \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='node_modules/' \
+            --exclude='vendor/' \
+            --exclude='assets/src/' \
+            --exclude='coverage/' \
+            --exclude='*.log'
+
+          cd "$package_root"
+          zip -qr "$GITHUB_WORKSPACE/$archive_name" frontenda-blocks
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontenda-blocks-${{ github.event.release.tag_name }}
+          path: frontenda-blocks-${{ github.event.release.tag_name }}.zip
+          if-no-files-found: error
+
+      - name: Attach archive to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" "frontenda-blocks-${RELEASE_TAG}.zip" --clobber

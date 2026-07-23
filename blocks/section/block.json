@@ -1,0 +1,89 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "fa/section",
+  "textdomain": "frontenda-blocks",
+  "title": "Section",
+  "description": "Dynamic content section with subtitle, title, text, optional image, and list items.",
+  "category": "frontenda",
+  "icon": "layout",
+  "keywords": ["section", "content", "benefits"],
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "inserter": true
+  },
+  "providesContext": {
+    "fa/variant": "variant",
+    "fa/layout": "layout"
+  },
+  "faConfig": {
+    "listItemFields": {
+      "default": ["subttl", "ttl", "text", "image", "icon"],
+      "presets": {
+        "founders": ["ttl", "text", "image", "link"],
+        "supervisory-board": ["post"],
+        "donation": ["text", "image", "link"],
+        "contact": ["ttl", "icon", "link"],
+        "list-5": ["text", "icon"]
+      }
+    },
+    "variations": {
+      "offer": {
+        "availableElements": ["subttl", "ttl", "text", "buttons", "media", "list"],
+        "defaultElements": ["subttl", "ttl", "text", "buttons", "media"]
+      }
+    }
+  },
+  "variations": [
+    {
+      "name": "offer",
+      "title": "Offer",
+      "icon": "star-filled",
+      "description": "Section for the first block.",
+      "attributes": {
+        "variant": "offer",
+        "layouts": [
+          { "label": "First", "value": "1" },
+          { "label": "Second", "value": "2" },
+          { "label": "Third", "value": "3" },
+          { "label": "Fourth", "value": "4" }
+        ]
+      },
+      "isDefault": true,
+      "isActive": ["variant"],
+      "scope": ["inserter"]
+    }
+  ],
+  "attributes": {
+    "clientId": {
+      "type": "string"
+    },
+    "layout": {
+      "type": "string"
+    },
+    "nickname": {
+      "type": "string"
+    },
+    "variant": {
+      "type": "string",
+      "default": ""
+    },
+    "anchor": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "layouts": {
+      "type": "array",
+      "default": []
+    },
+    "meta": {
+      "type": "object"
+    }
+  },
+  "editorScript": "frontenda-blocks-section-editor",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}

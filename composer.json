@@ -1,0 +1,9 @@
+{
+  "name": "frontenda/frontenda-blocks",
+  "description": "Reusable dynamic Gutenberg section block",
+  "type": "wordpress-plugin",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1"
+  }
+}
