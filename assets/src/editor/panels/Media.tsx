@@ -8,6 +8,16 @@ import type {
     SectionMedia,
     GalleryImage,
 } from '../types';
+import ZoomableFocalPointPicker from '../components/ZoomableFocalPointPicker';
+import {
+    createDefaultCaption,
+    createDefaultImageParams,
+    createDefaultMedia,
+    DEFAULT_FOCAL_POINT,
+    DEFAULT_ZOOM,
+    getMediaUrl,
+    type MediaEntity,
+} from '../media';
 
 const { createElement } = wp.element;
 const { MediaUpload, MediaUploadCheck } = wp.blockEditor;
@@ -16,101 +26,12 @@ const { store } = wp.coreData;
 const {
     BaseControl,
     Button,
-    FocalPointPicker,
     PanelBody,
     RangeControl,
     SelectControl,
     TextControl,
     TextareaControl
 } = wp.components;
-
-type MediaEntity = {
-    source_url?: string;
-    media_details?: {
-        sizes?: Record<string, { source_url?: string }>;
-    };
-};
-
-const DEFAULT_FOCAL_POINT: FocalPoint = {
-    x: 0.5,
-    y: 0.5,
-};
-
-const DEFAULT_ZOOM = 1;
-
-function createDefaultImageParams(id = 0) {
-    return {
-        id,
-        focalPoint: DEFAULT_FOCAL_POINT,
-        zoom: DEFAULT_ZOOM,
-    };
-}
-
-function createDefaultCaption() {
-    return {
-        text: '',
-        orientation: {
-            x: 'left' as const,
-            y: 'top' as const,
-        },
-    };
-}
-
-function createDefaultMedia(): SectionMedia {
-    return {
-        type: 'img',
-        origin: 'file',
-        attachment: createDefaultImageParams(),
-        poster: createDefaultImageParams(),
-        embedUrl: '',
-        caption: createDefaultCaption(),
-        gallery: {
-            images: [],
-            sliderSettings: {
-                slidesPerView: 1,
-                autoplay: false,
-            },
-        },
-    };
-}
-
-function getMediaUrl(media?: MediaEntity | null): string {
-    return media?.media_details?.sizes?.large?.source_url
-        || media?.media_details?.sizes?.medium_large?.source_url
-        || media?.media_details?.sizes?.full?.source_url
-        || media?.source_url
-        || '';
-}
-
-function ZoomableFocalPointPicker({
-    url,
-    focalPoint,
-    zoom,
-    onChange,
-}: {
-    url: string;
-    focalPoint: FocalPoint;
-    zoom: number;
-    onChange: (value: FocalPoint) => void;
-}) {
-    return (
-        <div
-            className="components-focal-point-picker-wrapper"
-            style={{
-                ['--uu-focal-point-x' as any]: `${focalPoint.x * 100}%`,
-                ['--uu-focal-point-y' as any]: `${focalPoint.y * 100}%`,
-                ['--uu-focal-point-zoom' as any]: zoom,
-            }}
-        >
-            <FocalPointPicker
-                url={url}
-                value={focalPoint}
-                onChange={onChange}
-                onDrag={onChange}
-            />
-        </div>
-    );
-}
 
 type MediaPanelProps = {
     attributes: {

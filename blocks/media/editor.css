@@ -3,7 +3,7 @@
 }
 
 .components-focal-point-picker-wrapper .components-focal-point-picker__media {
-    transform: scale(var(--uu-focal-point-zoom, 1));
-    transform-origin: var(--uu-focal-point-x, 50%) var(--uu-focal-point-y, 50%);
+    transform: scale(var(--fa-focal-point-zoom, 1));
+    transform-origin: var(--fa-focal-point-x, 50%) var(--fa-focal-point-y, 50%);
     transition: transform 120ms ease-out;
 }

@@ -19,19 +19,16 @@
   },
   "faConfig": {
     "listItemFields": {
-      "default": ["subttl", "ttl", "text", "image", "icon"],
-      "presets": {
-        "founders": ["ttl", "text", "image", "link"],
-        "supervisory-board": ["post"],
-        "donation": ["text", "image", "link"],
-        "contact": ["ttl", "icon", "link"],
-        "list-5": ["text", "icon"]
-      }
+      "default": ["subttl", "ttl", "text", "image", "icon"]
     },
     "variations": {
       "offer": {
-        "availableElements": ["subttl", "ttl", "text", "buttons", "media", "list"],
-        "defaultElements": ["subttl", "ttl", "text", "buttons", "media"]
+        "template": [
+          ["fa/header", {}],
+          ["fa/text", {}],
+          ["fa/buttons", {}],
+          ["fa/media", {}]
+        ]
       }
     }
   },
@@ -43,6 +40,7 @@
       "description": "Section for the first block.",
       "attributes": {
         "variant": "offer",
+        "layout": "1",
         "layouts": [
           { "label": "First", "value": "1" },
           { "label": "Second", "value": "2" },

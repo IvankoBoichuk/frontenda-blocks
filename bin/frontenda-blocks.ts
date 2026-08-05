@@ -35,7 +35,7 @@ async function check(): Promise<void> {
 
 async function addVariant(): Promise<void> {
   const name = args[0];
-  if (!name || name.startsWith('--')) fail('usage: add-variant <name> --title <title> --layouts 1,2 --elements ttl,text --defaults ttl');
+  if (!name || name.startsWith('--')) fail('usage: add-variant <name> --title <title> --layouts 1,2 --blocks fa/header,fa/text');
   if (!/^[a-z0-9][a-z0-9_-]*$/.test(name)) fail('variant name must be a WordPress slug');
 
   const data = await metadata();
@@ -43,22 +43,24 @@ async function addVariant(): Promise<void> {
 
   const title = option('title') || name.split(/[-_]/).map((word) => word[0].toUpperCase() + word.slice(1)).join(' ');
   const layouts = (option('layouts') || '1').split(',').map((value) => value.trim()).filter(Boolean);
-  const availableElements = (option('elements') || 'subttl,ttl,text,buttons,media').split(',').map((value) => value.trim()).filter(Boolean);
-  const defaultElements = (option('defaults') || availableElements.join(',')).split(',').map((value) => value.trim()).filter(Boolean);
-  const known = ['subttl', 'ttl', 'text', 'buttons', 'media', 'list'];
-  const unknown = availableElements.filter((item) => !known.includes(item));
-  if (unknown.length) fail(`unknown elements: ${unknown.join(', ')}`);
+  const blocks = (option('blocks') || 'fa/header,fa/text,fa/buttons,fa/media').split(',').map((value) => value.trim()).filter(Boolean);
+  const invalidBlocks = blocks.filter((block) => !/^[a-z0-9-]+\/[a-z0-9-]+$/.test(block));
+  if (invalidBlocks.length) fail(`invalid block names: ${invalidBlocks.join(', ')}`);
 
   data.faConfig ||= {};
   data.faConfig.variations ||= {};
-  data.faConfig.variations[name] = { availableElements, defaultElements };
+  data.faConfig.variations[name] = { template: blocks.map((block) => [block, {}]) };
   data.variations ||= [];
   data.variations.push({
     name,
     title,
     icon: option('icon') || 'layout',
     description: option('description') || `${title} section.`,
-    attributes: { variant: name, layouts: layouts.map((value, index) => ({ label: `Layout ${index + 1}`, value })) },
+    attributes: {
+      variant: name,
+      layout: layouts[0] || '',
+      layouts: layouts.map((value, index) => ({ label: `Layout ${index + 1}`, value })),
+    },
     isActive: ['variant'],
     scope: ['inserter'],
   });

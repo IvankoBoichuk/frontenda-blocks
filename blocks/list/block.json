@@ -6,7 +6,6 @@
   "category": "frontenda",
   "icon": "list-view",
   "parent": ["fa/section"],
-  "usesContext": ["fa/variant", "fa/layout"],
   "attributes": { "list": { "type": "object" } },
   "supports": { "html": false, "reusable": false },
   "editorScript": "frontenda-blocks-section-editor"

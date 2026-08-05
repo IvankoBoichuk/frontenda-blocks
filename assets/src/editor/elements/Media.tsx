@@ -1,25 +1,11 @@
 import { wp } from '@/editor/wp';
 import type { SectionMedia } from '../types';
+import { getMediaUrl, type MediaEntity } from '../media';
 
 const { createElement } = wp.element;
 const { useSelect } = wp.data;
 const { store } = wp.coreData;
 const { __ } = wp.i18n;
-
-type MediaEntity = {
-	source_url?: string;
-	media_details?: {
-		sizes?: Record<string, { source_url?: string }>;
-	};
-};
-
-function getMediaUrl(media?: MediaEntity | null): string {
-	return media?.media_details?.sizes?.large?.source_url
-		|| media?.media_details?.sizes?.medium_large?.source_url
-		|| media?.media_details?.sizes?.medium?.source_url
-		|| media?.source_url
-		|| '';
-}
 
 function getPreviewAttachmentId(media?: SectionMedia): number {
 	if (!media) {

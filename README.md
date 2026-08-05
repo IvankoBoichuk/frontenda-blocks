@@ -37,8 +37,7 @@ bun run build
 bunx frontenda-blocks add-variant hero \
   --title "Hero" \
   --layouts 1,2 \
-  --elements subttl,ttl,text,buttons,media \
-  --defaults ttl,text,media
+  --blocks fa/header,fa/text,fa/buttons,fa/media
 ```
 
 Під час локальної розробки використовуйте еквівалентну команду:
@@ -140,6 +139,9 @@ $layout = $context->layout();
 $header = $context->slots()->first('header');
 $testimonials = $context->slots()->all('testimonials');
 
+$subtitle = $header?->get('subtitle');
+echo $subtitle?->render();
+
 if ($context->slots()->has('media')) {
     // ...
 }
@@ -159,7 +161,3 @@ add_filter(
     }
 );
 ```
-
-## Сумісність
-
-Початковий контракт атрибутів походить від `uu/section`, але зареєстрована назва блока — `fa/section`. Міграція наявного серіалізованого контенту `uu/section` навмисно не виконується.

@@ -17,13 +17,10 @@ const { __ } = wp.i18n;
 
 type ListProps = {
 	list?: SectionAttributes['list'];
-	layouts?: SectionAttributes['layouts'];
-	variant: string;
-	attributes: Partial<SectionAttributes>;
 	setAttributes: (attributes: Partial<SectionAttributes>) => void;
 };
 
-type ListSettingsProps = Omit<ListProps, 'variant'>;
+type ListSettingsProps = ListProps;
 
 export function ListSettings({
 	list,
@@ -90,11 +87,9 @@ export function ListSettings({
 
 export default function List({
 	list,
-	variant,
-	attributes,
 	setAttributes,
 }: ListProps) {
-	const fields = getListItemFields(variant, attributes.layout ?? '');
+	const fields = getListItemFields();
 	const personOptions = usePostTypeOptions('person', { label: __('Select a post', 'frontenda-blocks'), value: '0' });
 	const [openLinkIndex, setOpenLinkIndex] = useState<number | null>(null);
 	const items = list?.items ?? [];

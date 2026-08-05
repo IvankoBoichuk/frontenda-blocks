@@ -17,7 +17,6 @@ type SectionBlockConfig = {
 	faConfig?: {
 		listItemFields?: {
 			default?: ListItemFieldKey[];
-			presets?: Record<string, ListItemFieldKey[]>;
 		};
 	};
 };
@@ -33,12 +32,9 @@ const fieldKeysToMap = (fields: ListItemFieldKey[]): ListItemFields => {
 	}), {} as ListItemFields);
 };
 const DEFAULT_PRESET = fieldKeysToMap(listItemFieldsConfig?.default ?? ['subttl', 'ttl', 'text', 'image', 'icon']);
-const LIST_ITEM_PRESETS = listItemFieldsConfig?.presets ?? {};
 
-export function getListItemFields(variant: string, layout: string): ListItemFields {
-	const preset = LIST_ITEM_PRESETS[`${variant}-${layout}`] ?? LIST_ITEM_PRESETS[variant];
-
-	return preset ? fieldKeysToMap(preset) : DEFAULT_PRESET;
+export function getListItemFields(): ListItemFields {
+	return DEFAULT_PRESET;
 }
 
 export function sanitizeListItem(item: ListItem, fields: ListItemFields): ListItem {
