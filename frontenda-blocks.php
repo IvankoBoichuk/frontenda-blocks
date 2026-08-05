@@ -18,7 +18,6 @@ if (! defined('ABSPATH')) {
 define('FRONTENDA_BLOCKS_FILE', __FILE__);
 define('FRONTENDA_BLOCKS_DIR', plugin_dir_path(__FILE__));
 
-require_once FRONTENDA_BLOCKS_DIR . 'src/HtmlAttributes.php';
 require_once FRONTENDA_BLOCKS_DIR . 'src/Slot.php';
 require_once FRONTENDA_BLOCKS_DIR . 'src/SlotCollection.php';
 require_once FRONTENDA_BLOCKS_DIR . 'src/SectionContext.php';
