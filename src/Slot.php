@@ -35,6 +35,11 @@ final class Slot
         return $this->html;
     }
 
+    public function render(): ?string
+    {
+        return $this->html;
+    }
+
     public function data(): array
     {
         return $this->data;
@@ -51,6 +56,19 @@ final class Slot
             'block_name' => $this->blockName,
             'attributes' => $this->attributes,
             'html' => $this->html,
-        ] + $this->data;
+        ] + array_map([self::class, 'normalizeValue'], $this->data);
+    }
+
+    private static function normalizeValue(mixed $value): mixed
+    {
+        if ($value instanceof self) {
+            return $value->toArray();
+        }
+
+        if (is_array($value)) {
+            return array_map([self::class, 'normalizeValue'], $value);
+        }
+
+        return $value;
     }
 }

@@ -19,7 +19,11 @@ final class ContextBuilder
     public function build(array $attributes, string $content, WP_Block $block): SectionContext
     {
         $variant = sanitize_key($attributes['variant'] ?? '');
-        $layout = sanitize_key($attributes['layout'] ?? '');
+        $layout = sanitize_key(
+            $attributes['layout']
+                ?? $attributes['layouts'][0]['value']
+                ?? ''
+        );
         $nickname = sanitize_text_field($attributes['nickname'] ?? '');
         $anchor = sanitize_title($attributes['anchor'] ?? $nickname);
         ['slots' => $slots, 'sequence' => $sequence] = $this->children($block);
@@ -111,11 +115,13 @@ final class ContextBuilder
                 continue;
             }
 
-            $parts[$name] = [
-                'block_name' => $child->name,
-                'attributes' => (array) ($child->parsed_block['attrs'] ?? []),
-                'html' => trim($child->render()),
-            ];
+            $html = trim($child->render());
+            $parts[$name] = new Slot(
+                $name,
+                $child->name,
+                (array) ($child->parsed_block['attrs'] ?? []),
+                $html !== '' ? $html : null,
+            );
         }
 
         return $parts;
