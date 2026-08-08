@@ -8,7 +8,6 @@ import { registerSubtitleBlock } from '@/blocks/subtitle/register';
 import { registerTextBlock } from '@/blocks/text/register';
 import { registerTitleBlock } from '@/blocks/title/register';
 import '@/extensions/button-icon';
-import '@/extensions/button-style';
 
 registerSectionBlock();
 registerHeaderBlock();

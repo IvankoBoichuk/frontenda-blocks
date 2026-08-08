@@ -12,9 +12,7 @@ final class Plugin
         add_action('init', [self::class, 'registerBlock']);
         add_filter('block_categories_all', [self::class, 'registerCategory']);
         add_filter('register_block_type_args', [ButtonIconExtension::class, 'registerAttributes'], 10, 2);
-        add_filter('register_block_type_args', [ButtonStyleExtension::class, 'registerAttributes'], 10, 2);
         add_filter('render_block_core/button', [ButtonIconExtension::class, 'render'], 10, 2);
-        add_filter('render_block_core/button', [ButtonStyleExtension::class, 'render'], 20, 2);
     }
 
     public static function registerBlock(): void
