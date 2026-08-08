@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "fa/query",
+  "title": "Query",
+  "category": "frontenda",
+  "icon": "database",
+  "parent": ["fa/section"],
+  "attributes": {
+    "query": {
+      "type": "object",
+      "default": {
+        "mode": "automatic",
+        "postType": "post",
+        "postIds": [],
+        "perPage": 6,
+        "orderBy": "date",
+        "order": "desc"
+      }
+    }
+  },
+  "supports": { "html": false, "reusable": false },
+  "editorScript": "frontenda-blocks-section-editor"
+}
