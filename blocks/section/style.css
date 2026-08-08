@@ -1,3 +1,20 @@
 .components-focal-point-picker {
     overflow: hidden;
 }
+
+.fa-section-block__media {
+    overflow: hidden;
+}
+
+.fa-media__picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.fa-media__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

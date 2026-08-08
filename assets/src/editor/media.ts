@@ -32,6 +32,7 @@ export function createDefaultMedia(): SectionMedia {
         attachment: createDefaultImageParams(),
         poster: createDefaultImageParams(),
         embedUrl: '',
+        priority: 'low',
         caption: createDefaultCaption(),
         gallery: {
             images: [],

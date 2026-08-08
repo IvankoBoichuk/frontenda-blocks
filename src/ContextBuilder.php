@@ -14,6 +14,7 @@ final class ContextBuilder
         'fa/buttons' => 'buttons',
         'fa/media' => 'media',
         'fa/list' => 'list',
+        'fa/query' => 'query',
     ];
 
     public function build(array $attributes, string $content, WP_Block $block): SectionContext
@@ -67,29 +68,38 @@ final class ContextBuilder
     private function child(string $name, WP_Block $child): Slot
     {
         $attributes = (array) ($child->parsed_block['attrs'] ?? []);
-        $html = match ($name) {
-            'text' => trim($child->render()),
-            'buttons' => $this->buttonsHtml($child),
-            default => trim($child->render()),
+
+        return match ($name) {
+            'header' => $this->header($child, $attributes),
+            'text' => new SlotText(
+                $name,
+                $child->name,
+                $attributes,
+                $this->nullableHtml($child->render()),
+            ),
+            'buttons' => new SlotButtons(
+                $name,
+                $child->name,
+                $attributes,
+                $this->buttonsHtml($child),
+            ),
+            'media' => $this->media($child, $attributes),
+            'list' => $this->listSlot($child, $attributes),
+            'query' => $this->querySlot($child, $attributes),
+            default => new Slot(
+                $name,
+                $child->name,
+                $attributes,
+                $this->nullableHtml($child->render()),
+            ),
         };
-        $data = [];
+    }
 
-        if ($name === 'header') {
-            $data = $this->header($child);
-        } elseif ($name === 'media') {
-            $data = $this->media($attributes['media'] ?? null);
-            $html = $data['html'];
-        } elseif ($name === 'list') {
-            $list = is_array($attributes['list'] ?? null) ? $attributes['list'] : [];
-            $data = [
-                'layout' => sanitize_key($list['layout'] ?? ''),
-                'title' => $this->heading($list['ttl'] ?? null, 'h3'),
-                'text_if_empty' => sanitize_text_field($list['textIfEmpty'] ?? ''),
-                'items' => $this->list($list['items'] ?? []),
-            ];
-        }
+    private function nullableHtml(string $html): ?string
+    {
+        $html = trim($html);
 
-        return new Slot($name, $child->name, $attributes, $html !== '' ? $html : null, $data);
+        return $html !== '' ? $html : null;
     }
 
     private function buttonsHtml(WP_Block $block): ?string
@@ -100,7 +110,7 @@ final class ContextBuilder
         return $text === '' ? null : trim($html);
     }
 
-    private function header(WP_Block $header): array
+    private function header(WP_Block $header, array $attributes): SlotHeader
     {
         $parts = ['subtitle' => null, 'title' => null];
 
@@ -116,7 +126,8 @@ final class ContextBuilder
             }
 
             $html = trim($child->render());
-            $parts[$name] = new Slot(
+            $slotClass = $name === 'subtitle' ? SlotSubtitle::class : SlotTitle::class;
+            $parts[$name] = new $slotClass(
                 $name,
                 $child->name,
                 (array) ($child->parsed_block['attrs'] ?? []),
@@ -124,7 +135,14 @@ final class ContextBuilder
             );
         }
 
-        return $parts;
+        return new SlotHeader(
+            'header',
+            $header->name,
+            $attributes,
+            $this->nullableHtml($header->render()),
+            $parts['subtitle'],
+            $parts['title'],
+        );
     }
 
     private function heading(mixed $value, string $fallbackLevel): ?array
@@ -139,8 +157,9 @@ final class ContextBuilder
         return ['level' => $level, 'text' => wp_kses_post(strtr((string) $value['text'], ['{' => '<span>', '}' => '</span>']))];
     }
 
-    private function media(mixed $media): array
+    private function media(WP_Block $block, array $attributes): SlotMedia
     {
+        $media = $attributes['media'] ?? null;
         $media = is_array($media) ? $media : [];
         $attachmentId = absint($media['attachment']['id'] ?? 0);
         $focalPoint = is_array($media['attachment']['focalPoint'] ?? null) ? $media['attachment']['focalPoint'] : [];
@@ -156,22 +175,76 @@ final class ContextBuilder
             $focalY * 100
         );
 
-        return [
-            'media' => $media,
-            'attachment_id' => $attachmentId,
-            'focal_point' => ['x' => $focalX, 'y' => $focalY],
-            'zoom' => $zoom,
-            'html' => $attachmentId ? wp_get_attachment_image($attachmentId, 'full', false, ['style' => $style]) : '',
-        ];
+        return new SlotMedia(
+            name: 'media',
+            blockName: $block->name,
+            attributes: $attributes,
+            attachmentId: $attachmentId,
+            priority: ($media['priority'] ?? 'low') === 'high' ? 'high' : 'low',
+            style: $style,
+            data: [
+                'attachment_id' => $attachmentId,
+                'focal_point' => ['x' => $focalX, 'y' => $focalY],
+                'zoom' => $zoom,
+                'priority' => ($media['priority'] ?? 'low') === 'high' ? 'high' : 'low',
+            ],
+        );
     }
 
-    private function list(mixed $items): array
+    private function listSlot(WP_Block $block, array $attributes): SlotList
+    {
+        $list = is_array($attributes['list'] ?? null) ? $attributes['list'] : [];
+        $layout = sanitize_key($list['layout'] ?? '');
+        $textIfEmpty = sanitize_text_field($list['textIfEmpty'] ?? '');
+
+        return new SlotList(
+            'list',
+            $block->name,
+            $attributes,
+            $layout !== '' ? $layout : null,
+            $this->heading($list['ttl'] ?? null, 'h3'),
+            $textIfEmpty !== '' ? $textIfEmpty : null,
+            $this->listItems($list['items'] ?? []),
+        );
+    }
+
+    private function querySlot(WP_Block $block, array $attributes): SlotQuery
+    {
+        $query = is_array($attributes['query'] ?? null) ? $attributes['query'] : [];
+        $mode = ($query['mode'] ?? 'automatic') === 'manual' ? 'manual' : 'automatic';
+        $postType = sanitize_key($query['postType'] ?? 'post');
+        $postType = post_type_exists($postType) ? $postType : 'post';
+        $postIds = array_values(array_unique(array_filter(array_map(
+            'absint',
+            is_array($query['postIds'] ?? null) ? $query['postIds'] : [],
+        ))));
+        $orderBy = sanitize_key($query['orderBy'] ?? 'date');
+        $orderBy = in_array($orderBy, ['date', 'title', 'menu_order', 'rand'], true) ? $orderBy : 'date';
+        $order = strtolower((string) ($query['order'] ?? 'desc')) === 'asc' ? 'ASC' : 'DESC';
+
+        return new SlotQuery(
+            name: 'query',
+            blockName: $block->name,
+            attributes: $attributes,
+            mode: $mode,
+            postType: $postType,
+            postIds: $postIds,
+            perPage: min(24, max(1, absint($query['perPage'] ?? 6))),
+            orderBy: $orderBy,
+            order: $order,
+        );
+    }
+
+    /** @return list<SlotListItem> */
+    private function listItems(mixed $items): array
     {
         if (! is_array($items)) {
             return [];
         }
 
-        return array_values(array_filter(array_map(static function (mixed $item): ?array {
+        $mediaRenderer = new MediaRenderer();
+
+        return array_values(array_filter(array_map(static function (mixed $item) use ($mediaRenderer): ?SlotListItem {
             if (! is_array($item)) {
                 return null;
             }
@@ -179,17 +252,17 @@ final class ContextBuilder
             $imageId = absint($item['image']['id'] ?? 0);
             $iconId = absint($item['icon']['id'] ?? 0);
 
-            return [
-                'title' => sanitize_text_field($item['ttl']['text'] ?? ''),
-                'subtitle' => sanitize_text_field($item['subttl']['text'] ?? ''),
-                'text' => wp_kses_post($item['text'] ?? ''),
-                'url' => esc_url($item['link']['url'] ?? ''),
-                'link_text' => sanitize_text_field($item['link']['text'] ?? ''),
-                'image' => $imageId ? wp_get_attachment_image($imageId, 'large') : '',
-                'icon' => $iconId ? wp_get_attachment_image($iconId, 'full') : '',
-                'post' => absint($item['post'] ?? 0),
-                'meta' => is_array($item['meta'] ?? null) ? $item['meta'] : [],
-            ];
+            return new SlotListItem(
+                title: sanitize_text_field($item['ttl']['text'] ?? ''),
+                subtitle: sanitize_text_field($item['subttl']['text'] ?? ''),
+                text: wp_kses_post($item['text'] ?? ''),
+                url: esc_url($item['link']['url'] ?? ''),
+                linkText: sanitize_text_field($item['link']['text'] ?? ''),
+                image: $mediaRenderer->attachment($imageId, 'large'),
+                icon: $mediaRenderer->attachment($iconId),
+                postId: absint($item['post'] ?? 0),
+                meta: is_array($item['meta'] ?? null) ? $item['meta'] : [],
+            );
         }, $items)));
     }
 

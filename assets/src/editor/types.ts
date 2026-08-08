@@ -48,6 +48,7 @@ export type SectionMedia = {
     attachment: ImageParams;
     poster: ImageParams;
     embedUrl: string;
+    priority: 'high' | 'low';
     caption: {
         text: string;
         orientation: {
@@ -76,6 +77,19 @@ export type SectionAttributes = {
         ttl?: HeadingElement | null;
         items: ListItem[];
     };
+};
+
+export type QuerySettings = {
+    mode: 'automatic' | 'manual';
+    postType: string;
+    postIds: number[];
+    perPage: number;
+    orderBy: 'date' | 'title' | 'menu_order' | 'rand';
+    order: 'asc' | 'desc';
+};
+
+export type QueryAttributes = {
+    query?: QuerySettings;
 };
 
 export type MediaSelection = {

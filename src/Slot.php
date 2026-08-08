@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Frontenda\Blocks;
 
-final class Slot
+class Slot
 {
     public function __construct(
         private readonly string $name,

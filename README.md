@@ -11,14 +11,47 @@
 - `fa/buttons` — core-блок кнопок;
 - `fa/media` — конфігурація зображення, галереї або відео;
 - `fa/list` — структуровані елементи повторюваного списку.
+- `fa/query` — автоматична або ручна вибірка записів довільного зареєстрованого post type.
+
+Блок `core/button` всередині `fa/buttons` розширено налаштуваннями SVG attachment-іконки та її позиції `left/right`. Media Library picker показує лише `image/svg+xml`; інші MIME типи додатково відхиляються під час вибору та PHP-render. На frontend іконка рендериться як декоративне Timber-зображення всередині посилання кнопки.
 
 PHP-renderer формує `slots` і `sequence` з дерева дочірніх блоків. Шаблони секцій можуть використовувати нормалізовані значення `header`, `text`, `buttons`, `media` і `list` або отримувати всі входження через `slots`.
+
+### Responsive media
+
+У `fa/media` редактор задає зображення, focal point, zoom і `priority`. Priority `high` додає `fetchpriority="high"` та `loading="eager"`; `low` додає `fetchpriority="low"` та `loading="lazy"`.
+
+Responsive-розміри належать дизайну і задаються безпосередньо в PHP-шаблоні через `SlotMedia::html()`:
+
+```php
+echo $media?->html([
+    'mobile' => '372x252',
+    'tablet' => '480x290',
+    'desktop' => '812x458',
+    '(min-width: 1440px)' => '1200x675',
+]);
+```
+
+Для `mobile`, `tablet` і `desktop` renderer використовує вбудовані media query. Будь-який інший ключ використовується як custom media query. Розмір повинен мати точний формат `WIDTHxHEIGHT`; неправильні значення не рендеряться.
+
+Renderer отримує attachment через `Timber\Timber::get_image()` і створює фізично обрізані responsive-зображення через `Timber\ImageHelper::resize()`. URL також можна перевизначити через фільтр:
+
+```php
+add_filter(
+    'frontenda_blocks/media/resize_url',
+    function (string $url, int $attachmentId, string $size, ?int $width, ?int $height, bool $crop): string {
+        return $url;
+    },
+    10,
+    6
+);
+```
 
 ## Встановлення
 
 Розмістіть цю директорію в `web/app/plugins/frontenda-blocks`, після чого активуйте **Frontenda Blocks** у WordPress.
 
-Плагін не залежить від Timber, Sage або Acorn. Gutenberg-редактор реалізований на TypeScript/TSX.
+Плагін залежить від Timber 2.5 або новішого, але не залежить від Sage чи Acorn. Gutenberg-редактор реалізований на TypeScript/TSX.
 
 Після змін у TSX зберіть editor assets:
 
@@ -136,18 +169,53 @@ Renderer передає в шаблон типізований об'єкт `Fron
 
 $variant = $context->variant();
 $layout = $context->layout();
-$header = $context->slots()->first('header');
+$header = $context->header();
+$media = $context->media();
+$list = $context->list();
 $testimonials = $context->slots()->all('testimonials');
 
-$subtitle = $header?->get('subtitle');
-echo $subtitle?->render();
+echo $header?->subtitle()?->render();
 
-if ($context->slots()->has('media')) {
-    // ...
+echo $media?->html([
+    'mobile' => '372x252',
+    'desktop' => '812x458',
+]);
+
+foreach ($list?->items() ?? [] as $item) {
+    echo esc_html($item->title());
 }
 ```
 
-Кожен елемент колекції — це `Frontenda\Blocks\Slot` із гетерами `name()`, `blockName()`, `attributes()`, `html()` і `data()`. Метод `$slot->get('items', [])` надає доступ до специфічних нормалізованих даних.
+Стандартні блоки представлені конкретними типами `SlotHeader`, `SlotTitle`, `SlotSubtitle`, `SlotText`, `SlotButtons`, `SlotMedia`, `SlotList` і `SlotQuery`. Елементи списку мають тип `SlotListItem`. Спільний базовий `Slot` надає getters `name()`, `blockName()`, `attributes()`, `html()` і `data()`, а конкретні типи додають власне API.
+
+`SectionContext` надає типізовані getters `header()`, `text()`, `buttons()`, `media()`, `list()` і `query()`. Універсальна колекція `slots()` залишається для додаткових блоків, зареєстрованих темою.
+
+### Query slot
+
+У редакторі `fa/query` дозволяє вибрати automatic або manual режим і будь-який доступний через REST API зареєстрований post type, включно з WooCommerce products. Automatic режим має кількість і сортування; manual режим зберігає вибрані записи та їх порядок.
+
+У шаблоні query повертає типізовані Timber posts:
+
+```php
+$query = $context->query();
+
+foreach ($query?->posts() ?? [] as $post) {
+    echo esc_html($post->title());
+}
+```
+
+Аргументи `Timber::get_posts()` можна доповнити для конкретного сайту:
+
+```php
+add_filter(
+    'frontenda_blocks/query/args',
+    function (array $arguments, Frontenda\Blocks\SlotQuery $query): array {
+        return $arguments;
+    },
+    10,
+    2,
+);
+```
 
 Для сумісності зі зручним синтаксисом шаблонів renderer також виконує `extract($context->toArray())`, тому змінні `$header`, `$text`, `$buttons`, `$media`, `$list`, `$slots` і `$sequence` залишаються доступними.
 

@@ -11,6 +11,8 @@ final class Plugin
         add_action('init', [self::class, 'registerEditorScript'], 5);
         add_action('init', [self::class, 'registerBlock']);
         add_filter('block_categories_all', [self::class, 'registerCategory']);
+        add_filter('register_block_type_args', [ButtonIconExtension::class, 'registerAttributes'], 10, 2);
+        add_filter('render_block_core/button', [ButtonIconExtension::class, 'render'], 10, 2);
     }
 
     public static function registerBlock(): void
@@ -19,7 +21,7 @@ final class Plugin
             'render_callback' => [Renderer::class, 'render'],
         ]);
 
-        foreach (['header', 'title', 'subtitle', 'text', 'buttons', 'media', 'list'] as $block) {
+        foreach (['header', 'title', 'subtitle', 'text', 'buttons', 'media', 'list', 'query'] as $block) {
             register_block_type(FRONTENDA_BLOCKS_DIR . 'blocks/' . $block);
         }
     }

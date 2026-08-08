@@ -2,10 +2,12 @@ import { registerButtonsBlock } from '@/blocks/buttons/register';
 import { registerHeaderBlock } from '@/blocks/header/register';
 import { registerListBlock } from '@/blocks/list/register';
 import { registerMediaBlock } from '@/blocks/media/register';
+import { registerQueryBlock } from '@/blocks/query/register';
 import { registerSectionBlock } from '@/blocks/section/register';
 import { registerSubtitleBlock } from '@/blocks/subtitle/register';
 import { registerTextBlock } from '@/blocks/text/register';
 import { registerTitleBlock } from '@/blocks/title/register';
+import '@/extensions/button-icon';
 
 registerSectionBlock();
 registerHeaderBlock();
@@ -15,3 +17,4 @@ registerTextBlock();
 registerButtonsBlock();
 registerMediaBlock();
 registerListBlock();
+registerQueryBlock();

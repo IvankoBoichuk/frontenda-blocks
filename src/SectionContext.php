@@ -52,6 +52,48 @@ final class SectionContext
         return $this->slots;
     }
 
+    public function header(): ?SlotHeader
+    {
+        $slot = $this->slots->first('header');
+
+        return $slot instanceof SlotHeader ? $slot : null;
+    }
+
+    public function text(): ?SlotText
+    {
+        $slot = $this->slots->first('text');
+
+        return $slot instanceof SlotText ? $slot : null;
+    }
+
+    public function buttons(): ?SlotButtons
+    {
+        $slot = $this->slots->first('buttons');
+
+        return $slot instanceof SlotButtons ? $slot : null;
+    }
+
+    public function media(): ?SlotMedia
+    {
+        $slot = $this->slots->first('media');
+
+        return $slot instanceof SlotMedia ? $slot : null;
+    }
+
+    public function list(): ?SlotList
+    {
+        $slot = $this->slots->first('list');
+
+        return $slot instanceof SlotList ? $slot : null;
+    }
+
+    public function query(): ?SlotQuery
+    {
+        $slot = $this->slots->first('query');
+
+        return $slot instanceof SlotQuery ? $slot : null;
+    }
+
     public function sequence(): array
     {
         return $this->sequence;
@@ -93,11 +135,12 @@ final class SectionContext
 
     public function toArray(): array
     {
-        $header = $this->slots->first('header');
-        $text = $this->slots->first('text');
-        $buttons = $this->slots->first('buttons');
-        $media = $this->slots->first('media');
-        $list = $this->slots->first('list');
+        $header = $this->header();
+        $text = $this->text();
+        $buttons = $this->buttons();
+        $media = $this->media();
+        $list = $this->list();
+        $query = $this->query();
 
         return [
             'attributes' => $this->attributes,
@@ -113,11 +156,12 @@ final class SectionContext
                 ] + $item['slot']->toArray(),
                 $this->sequence
             ),
-            'header' => $header?->toArray(),
-            'text' => $text?->html(),
-            'buttons' => $buttons?->html(),
-            'media' => $media?->toArray(),
-            'list' => $list?->get('items', []),
+            'header' => $header,
+            'text' => $text,
+            'buttons' => $buttons,
+            'media' => $media,
+            'list' => $list,
+            'query' => $query,
             'wrapper_attributes' => $this->wrapperAttributes,
             'block' => $this->block,
             'context' => $this,

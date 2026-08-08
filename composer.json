@@ -4,6 +4,7 @@
   "type": "wordpress-plugin",
   "license": "MIT",
   "require": {
-    "php": ">=8.1"
+    "php": ">=8.1",
+    "timber/timber": "^2.5"
   }
 }
