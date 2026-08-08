@@ -15,6 +15,8 @@
 
 Блок `core/button` всередині `fa/buttons` розширено налаштуваннями SVG attachment-іконки та її позиції `left/right`. Media Library picker показує лише `image/svg+xml`; інші MIME типи додатково відхиляються під час вибору та PHP-render. На frontend іконка рендериться як декоративне Timber-зображення всередині посилання кнопки.
 
+Кнопки також мають незалежні параметри `variant` (`fill` або `outline`) і `size` (`sm`, `md`, `lg`). PHP-renderer додає до посилання явний набір Tailwind-класів із `ButtonStyleExtension`; тема повинна включати PHP-файли цього плагіна до Tailwind content sources. Кольори спираються на design token `main`, наприклад `bg-main`, `text-main` і `border-main`.
+
 PHP-renderer формує `slots` і `sequence` з дерева дочірніх блоків. Шаблони секцій можуть використовувати нормалізовані значення `header`, `text`, `buttons`, `media` і `list` або отримувати всі входження через `slots`.
 
 ### Responsive media

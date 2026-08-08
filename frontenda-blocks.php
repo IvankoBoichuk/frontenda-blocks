@@ -29,6 +29,7 @@ require_once FRONTENDA_BLOCKS_DIR . 'src/SlotListItem.php';
 require_once FRONTENDA_BLOCKS_DIR . 'src/SlotList.php';
 require_once FRONTENDA_BLOCKS_DIR . 'src/SlotQuery.php';
 require_once FRONTENDA_BLOCKS_DIR . 'src/ButtonIconExtension.php';
+require_once FRONTENDA_BLOCKS_DIR . 'src/ButtonStyleExtension.php';
 require_once FRONTENDA_BLOCKS_DIR . 'src/SlotCollection.php';
 require_once FRONTENDA_BLOCKS_DIR . 'src/SectionContext.php';
 require_once FRONTENDA_BLOCKS_DIR . 'src/MediaRenderer.php';
