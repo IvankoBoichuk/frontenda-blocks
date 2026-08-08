@@ -8,5 +8,6 @@
   "parent": ["fa/section"],
   "attributes": {},
   "supports": { "html": false, "reusable": false },
-  "editorScript": "frontenda-blocks-section-editor"
+  "editorScript": "frontenda-blocks-section-editor",
+  "style": "file:./style.css"
 }
