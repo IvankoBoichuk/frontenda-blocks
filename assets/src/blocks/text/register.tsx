@@ -6,7 +6,7 @@ const { createElement } = wp.element;
 const { registerBlockType } = wp.blocks;
 const { InnerBlocks, useBlockProps } = wp.blockEditor;
 
-const TEXT_BLOCKS = ['core/paragraph', 'core/heading', 'core/list', 'core/quote', 'core/separator'];
+const TEXT_BLOCKS = ['core/paragraph', 'core/heading', 'core/list', 'core/quote', 'core/separator', 'fa/numbers'];
 
 export function registerTextBlock(): void {
     registerBlockType(textMetadata as BlockConfiguration, {

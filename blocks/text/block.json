@@ -5,7 +5,7 @@
   "title": "Text",
   "category": "frontenda",
   "icon": "editor-paragraph",
-  "parent": ["fa/section"],
+  "parent": ["fa/section", "fa/number"],
   "attributes": {},
   "supports": { "html": false, "reusable": false },
   "editorScript": "frontenda-blocks-section-editor"

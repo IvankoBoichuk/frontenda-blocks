@@ -1,11 +1,11 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
-  "name": "fa/title",
-  "title": "Title",
+  "name": "fa/number",
+  "title": "Number",
   "category": "frontenda",
-  "icon": "heading",
-  "parent": ["fa/header", "fa/number"],
+  "icon": "editor-ol",
+  "parent": ["fa/numbers"],
   "attributes": {},
   "supports": { "html": false, "reusable": false },
   "editorScript": "frontenda-blocks-section-editor"

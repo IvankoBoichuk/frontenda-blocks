@@ -21,7 +21,7 @@ final class Plugin
             'render_callback' => [Renderer::class, 'render'],
         ]);
 
-        foreach (['header', 'title', 'subtitle', 'text', 'buttons', 'media', 'list', 'query'] as $block) {
+        foreach (['header', 'title', 'subtitle', 'text', 'buttons', 'media', 'list', 'query', 'number', 'numbers'] as $block) {
             register_block_type(FRONTENDA_BLOCKS_DIR . 'blocks/' . $block);
         }
     }
