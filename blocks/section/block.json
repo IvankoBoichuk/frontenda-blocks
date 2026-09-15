@@ -15,7 +15,8 @@
   },
   "providesContext": {
     "fa/variant": "variant",
-    "fa/layout": "layout"
+    "fa/layout": "layout",
+    "fa/cardLayouts": "cardLayouts"
   },
   "faConfig": {
     "listItemFields": {
@@ -28,6 +29,38 @@
           ["fa/text", {}],
           ["fa/buttons", {}],
           ["fa/media", {}]
+        ]
+      },
+      "benefits": {
+        "template": [
+          ["fa/header", {}],
+          ["fa/text", {}],
+          ["fa/media", {}],
+          ["fa/list", {}]
+        ]
+      },
+      "photogallery": {
+        "template": [
+          ["fa/media", {}]
+        ]
+      },
+      "numbers": {
+        "template": [
+          ["fa/header", {}],
+          ["fa/numbers", {}]
+        ]
+      },
+      "reviews": {
+        "template": [
+          ["fa/header", {}],
+          ["fa/numbers", {}],
+          ["fa/reviews", {}]
+        ]
+      },
+      "faq": {
+        "template": [
+          ["fa/header", {}],
+          ["fa/list", {}]
         ]
       }
     }
@@ -43,12 +76,85 @@
         "layout": "1",
         "layouts": [
           { "label": "First", "value": "1" },
-          { "label": "Second", "value": "2" },
-          { "label": "Third", "value": "3" },
-          { "label": "Fourth", "value": "4" }
+          { "label": "Second", "value": "2" }
         ]
       },
       "isDefault": true,
+      "isActive": ["variant"],
+      "scope": ["inserter"]
+    },
+    {
+      "name": "benefits",
+      "title": "Benefits",
+      "icon": "awards",
+      "description": "Section with benefits list.",
+      "attributes": {
+        "variant": "benefits",
+        "layout": "1",
+        "layouts": [
+          { "label": "First", "value": "1" }
+        ]
+      },
+      "isActive": ["variant"],
+      "scope": ["inserter"]
+    },
+    {
+      "name": "photogallery",
+      "title": "Photogallery",
+      "icon": "format-gallery",
+      "description": "Section with a media gallery.",
+      "attributes": {
+        "variant": "photogallery",
+        "layout": "1",
+        "layouts": [
+          { "label": "First", "value": "1" }
+        ]
+      },
+      "isActive": ["variant"],
+      "scope": ["inserter"]
+    },
+    {
+      "name": "numbers",
+      "title": "Numbers",
+      "icon": "chart-bar",
+      "description": "Section with heading and a row of stat counters.",
+      "attributes": {
+        "variant": "numbers",
+        "layout": "1",
+        "layouts": [
+          { "label": "First", "value": "1" }
+        ]
+      },
+      "isActive": ["variant"],
+      "scope": ["inserter"]
+    },
+    {
+      "name": "reviews",
+      "title": "Reviews",
+      "icon": "format-chat",
+      "description": "Section with heading, numbers, and approved comments.",
+      "attributes": {
+        "variant": "reviews",
+        "layout": "1",
+        "layouts": [
+          { "label": "First", "value": "1" }
+        ]
+      },
+      "isActive": ["variant"],
+      "scope": ["inserter"]
+    },
+    {
+      "name": "faq",
+      "title": "FAQ",
+      "icon": "editor-help",
+      "description": "Section with heading and FAQ list.",
+      "attributes": {
+        "variant": "faq",
+        "layout": "1",
+        "layouts": [
+          { "label": "First", "value": "1" }
+        ]
+      },
       "isActive": ["variant"],
       "scope": ["inserter"]
     }
@@ -76,6 +182,13 @@
     "layouts": {
       "type": "array",
       "default": []
+    },
+    "cardLayouts": {
+      "type": "array",
+      "default": [
+        { "label": "From template", "value": "" },
+        { "label": "Numbered step", "value": "numbered-step" }
+      ]
     },
     "meta": {
       "type": "object"

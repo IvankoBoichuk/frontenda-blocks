@@ -1,5 +1,5 @@
 import metadata from '../../../../blocks/section/block.json';
-import type { ListItem } from '../types';
+import type { ListItem, ListItemFieldKey } from '../types';
 
 export type ListItemFields = {
 	subttl: boolean;
@@ -10,8 +10,6 @@ export type ListItemFields = {
 	link: boolean;
 	post: boolean;
 };
-
-type ListItemFieldKey = keyof ListItemFields;
 
 type SectionBlockConfig = {
 	faConfig?: {
@@ -32,19 +30,34 @@ const fieldKeysToMap = (fields: ListItemFieldKey[]): ListItemFields => {
 	}), {} as ListItemFields);
 };
 const DEFAULT_PRESET = fieldKeysToMap(listItemFieldsConfig?.default ?? ['subttl', 'ttl', 'text', 'image', 'icon']);
+const NUMBERED_STEP_PRESET: ListItemFieldKey[] = ['ttl', 'text'];
 
-export function getListItemFields(): ListItemFields {
-	return DEFAULT_PRESET;
+export const EDITABLE_LIST_ITEM_FIELDS: ListItemFieldKey[] = ['subttl', 'ttl', 'text', 'image', 'icon'];
+
+export function getListItemFieldKeys(layout?: string | null, fields?: ListItemFieldKey[]): ListItemFieldKey[] {
+	if (fields) {
+		return fields;
+	}
+
+	return layout === 'numbered-step'
+		? NUMBERED_STEP_PRESET
+		: Object.entries(DEFAULT_PRESET)
+			.filter(([, enabled]) => enabled)
+			.map(([field]) => field as ListItemFieldKey);
 }
 
-export function sanitizeListItem(item: ListItem, fields: ListItemFields): ListItem {
+export function getListItemFields(layout?: string | null, fields?: ListItemFieldKey[]): ListItemFields {
+	return fieldKeysToMap(getListItemFieldKeys(layout, fields));
+}
+
+export function sanitizeListItem(item: ListItem): ListItem {
 	return {
-		ttl: fields.ttl && item.ttl?.text ? item.ttl : null,
-		subttl: fields.subttl && item.subttl?.text ? item.subttl : null,
-		text: fields.text && item.text ? item.text : null,
-		image: fields.image && item.image?.id ? item.image : null,
-		icon: fields.icon && item.icon?.id ? item.icon : null,
-		link: fields.link && (item.link?.url || item.link?.text) ? item.link : null,
+		ttl: item.ttl?.text ? item.ttl : null,
+		subttl: item.subttl?.text ? item.subttl : null,
+		text: item.text || null,
+		image: item.image?.id ? item.image : null,
+		icon: item.icon?.id ? item.icon : null,
+		link: item.link?.url || item.link?.text ? item.link : null,
 		post: item.post ?? null,
 		meta: item.meta && Object.keys(item.meta).length ? item.meta : null,
 	};

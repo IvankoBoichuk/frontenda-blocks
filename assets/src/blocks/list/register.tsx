@@ -14,9 +14,13 @@ export function registerListBlock(): void {
     registerBlockType<ListBlockAttributes>(
         listMetadata as BlockConfiguration<ListBlockAttributes>,
         {
-            edit: ({ attributes, setAttributes }: BlockEditProps<ListBlockAttributes>) => <>
+            edit: ({ attributes, context, setAttributes }: BlockEditProps<ListBlockAttributes>) => <>
                 <InspectorControls>
-                    <ListSettings list={attributes.list} setAttributes={setAttributes} />
+                    <ListSettings
+                        list={attributes.list}
+                        cardLayouts={context['fa/cardLayouts'] as SectionAttributes['cardLayouts']}
+                        setAttributes={setAttributes}
+                    />
                 </InspectorControls>
                 <div {...useBlockProps()}>
                     <ListEditor list={attributes.list} setAttributes={setAttributes} />

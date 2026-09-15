@@ -1,18 +1,25 @@
 import { wp } from '@/editor/wp';
 import ListItemEditor from '@/editor/components/ListItemEditor';
 
-import { getListItemFields, sanitizeListItem } from './list-presets';
+import {
+	EDITABLE_LIST_ITEM_FIELDS,
+	getListItemFieldKeys,
+	getListItemFields,
+	sanitizeListItem,
+} from './list-presets';
 import LayoutSelector from './LayoutSelector';
 
 import type {
+	LayoutOption,
 	ListItem,
+	ListItemFieldKey,
 	MediaSelection,
 	SectionAttributes,
 } from '../types';
-import { createEmptyListItem, getCardLayoutOptions, usePostTypeOptions } from '../utils';
+import { createEmptyListItem } from '../utils';
 
 const { createElement, useState } = wp.element;
-const { Button, PanelBody, TextControl } = wp.components;
+const { Button, CheckboxControl, PanelBody, TextControl } = wp.components;
 const { __ } = wp.i18n;
 
 type ListProps = {
@@ -20,17 +27,20 @@ type ListProps = {
 	setAttributes: (attributes: Partial<SectionAttributes>) => void;
 };
 
-type ListSettingsProps = ListProps;
+type ListSettingsProps = ListProps & {
+	cardLayouts?: LayoutOption[];
+};
 
 export function ListSettings({
 	list,
+	cardLayouts = [],
 	setAttributes,
 }: ListSettingsProps) {
-	const availableLayouts = getCardLayoutOptions('person');
 	const items = list?.items ?? [];
 	const listTitle = list?.ttl?.text ?? '';
 	const listTitleLevel = list?.ttl?.level ?? 'h3';
 	const listLayout = list?.layout ?? '';
+	const listFields = getListItemFieldKeys(list?.layout, list?.fields);
 	const listTextIfEmpty = list?.textIfEmpty ?? '';
 	const updateList = (nextList: SectionAttributes['list']) => {
 		setAttributes({ list: nextList });
@@ -43,9 +53,10 @@ export function ListSettings({
 					__next40pxDefaultSize
 					label={__('List title', 'frontenda-blocks')}
 					value={listTitle}
-					onChange={(value: string) => {
+						onChange={(value: string) => {
 						updateList({
 							layout: list?.layout ?? null,
+							fields: list?.fields,
 							textIfEmpty: list?.textIfEmpty ?? null,
 							ttl: value ? { text: value, level: listTitleLevel } : null,
 							items,
@@ -55,16 +66,46 @@ export function ListSettings({
 				<LayoutSelector
 					label={__('Card layout', 'frontenda-blocks')}
 					value={listLayout}
-					layouts={availableLayouts}
+					layouts={cardLayouts}
 					onChange={(value: string | null) => {
 						updateList({
 							layout: value,
+							fields: getListItemFieldKeys(value),
 							textIfEmpty: list?.textIfEmpty ?? null,
 							ttl: list?.ttl ?? null,
 							items,
 						});
 					}}
 				/>
+				<div className="grid gap-2">
+					<strong>{__('Card fields', 'frontenda-blocks')}</strong>
+					{EDITABLE_LIST_ITEM_FIELDS.map((field) => {
+						const labels: Record<ListItemFieldKey, string> = {
+							subttl: __('Subtitle', 'frontenda-blocks'),
+							ttl: __('Title', 'frontenda-blocks'),
+							text: __('Text', 'frontenda-blocks'),
+							image: __('Image', 'frontenda-blocks'),
+							icon: __('Icon', 'frontenda-blocks'),
+							link: __('Link', 'frontenda-blocks'),
+							post: __('Post', 'frontenda-blocks'),
+						};
+
+						return <CheckboxControl
+							key={field}
+							label={labels[field]}
+							checked={listFields.includes(field)}
+							onChange={(checked: boolean) => updateList({
+								layout: list?.layout ?? null,
+								fields: checked
+									? [...listFields, field]
+									: listFields.filter((currentField) => currentField !== field),
+								textIfEmpty: list?.textIfEmpty ?? null,
+								ttl: list?.ttl ?? null,
+								items,
+							})}
+						/>;
+					})}
+				</div>
 				{items.length === 0 && (
 					<TextControl
 						__next40pxDefaultSize
@@ -73,6 +114,7 @@ export function ListSettings({
 						onChange={(value: string) => {
 							updateList({
 								layout: list?.layout ?? null,
+								fields: list?.fields,
 								textIfEmpty: value || null,
 								ttl: list?.ttl ?? null,
 								items,
@@ -89,8 +131,7 @@ export default function List({
 	list,
 	setAttributes,
 }: ListProps) {
-	const fields = getListItemFields();
-	const personOptions = usePostTypeOptions('person', { label: __('Select a post', 'frontenda-blocks'), value: '0' });
+	const fields = getListItemFields(list?.layout, list?.fields);
 	const [openLinkIndex, setOpenLinkIndex] = useState<number | null>(null);
 	const items = list?.items ?? [];
 	const updateList = (nextList: SectionAttributes['list']) => {
@@ -99,6 +140,7 @@ export default function List({
 	const updateItems = (nextItems: ListItem[]) => {
 		updateList({
 			layout: list?.layout ?? null,
+			fields: list?.fields,
 			textIfEmpty: list?.textIfEmpty ?? null,
 			ttl: list?.ttl ?? null,
 			items: nextItems,
@@ -106,11 +148,11 @@ export default function List({
 	};
 
 	const updateItem = (index: number, nextItem: ListItem) => {
-		updateItems(items.map((item, itemIndex) => itemIndex === index ? sanitizeListItem(nextItem, fields) : item));
+		updateItems(items.map((item, itemIndex) => itemIndex === index ? sanitizeListItem(nextItem) : item));
 	};
 
 	const addItem = () => {
-		updateItems([...(items || []), sanitizeListItem(createEmptyListItem(), fields)]);
+		updateItems([...(items || []), sanitizeListItem(createEmptyListItem())]);
 	};
 
 	const removeItem = (index: number) => {
@@ -205,7 +247,6 @@ export default function List({
 						index={index}
 						itemCount={items.length}
 						fields={fields}
-						personOptions={personOptions}
 						openLinkIndex={openLinkIndex}
 						setOpenLinkIndex={setOpenLinkIndex}
 						updateItem={updateItem}

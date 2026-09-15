@@ -20,6 +20,8 @@ export type LayoutOption = {
     value: string;
 };
 
+export type ListItemFieldKey = 'subttl' | 'ttl' | 'text' | 'image' | 'icon' | 'link' | 'post';
+
 export type FocalPoint = {
     x: number;
     y: number;
@@ -69,10 +71,12 @@ export type SectionAttributes = {
     anchor?: string;
     layout?: string;
     layouts?: LayoutOption[];
+    cardLayouts?: LayoutOption[];
     nickname?: string;
     variant: string;
     list?: {
         layout: string | null;
+        fields?: ListItemFieldKey[];
         textIfEmpty: string | null;
         ttl?: HeadingElement | null;
         items: ListItem[];
@@ -90,6 +94,18 @@ export type QuerySettings = {
 
 export type QueryAttributes = {
     query?: QuerySettings;
+};
+
+export type ReviewsSettings = {
+    source: 'comment' | 'product_review';
+    mode: 'automatic' | 'manual';
+    commentIds: number[];
+    perPage: number;
+    order: 'asc' | 'desc';
+};
+
+export type ReviewsAttributes = {
+    reviews?: ReviewsSettings;
 };
 
 export type MediaSelection = {

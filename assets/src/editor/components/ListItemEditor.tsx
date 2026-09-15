@@ -2,20 +2,12 @@ import { wp } from '@/editor/wp';
 
 import type { ListItem, MediaSelection } from '../types';
 import type { ListItemFields } from '../panels/list-presets';
-import { getPostLabel } from '../utils';
 import ListMediaPicker from './ListMediaPicker';
 
 const { createElement } = wp.element;
 const { RichText, URLPopover, URLInput } = wp.blockEditor;
-const { useSelect } = wp.data;
-const { store } = wp.coreData;
-const { Button, SelectControl, TextControl } = wp.components;
+const { Button, TextControl } = wp.components;
 const { __ } = wp.i18n;
-
-type SelectOption = {
-	label: string;
-	value: string;
-};
 
 function getPickerButtonClassName(isActive: boolean) {
 	return [
@@ -26,58 +18,11 @@ function getPickerButtonClassName(isActive: boolean) {
 	].join(' ');
 }
 
-function SelectedPostPreview({
-	postId,
-	onClear,
-}: {
-	postId: number | null;
-	onClear: () => void;
-}) {
-	const { post, hasResolved } = useSelect((select) => {
-		if (!postId) {
-			return {
-				post: null,
-				hasResolved: true,
-			};
-		}
-
-		const coreDataStore = select(store);
-
-		return {
-			post: coreDataStore.getEntityRecord('postType', 'person', postId),
-			hasResolved: coreDataStore.hasFinishedResolution('getEntityRecord', ['postType', 'person', postId]),
-		};
-	}, [postId]);
-
-	if (!postId) {
-		return null;
-	}
-
-	return (
-		<div className="grid gap-2 rounded-[1.25rem] bg-neutral-50 p-3">
-			<div className="type-x-small font-medium uppercase tracking-[0.12em] text-neutral-500">{__('Post', 'frontenda-blocks')}</div>
-			<div className="flex items-center gap-3">
-				<div className="type-small text-main">
-					{post
-						? getPostLabel(post as Parameters<typeof getPostLabel>[0])
-						: hasResolved
-							? __('Post not found', 'frontenda-blocks')
-							: __('Loading post...', 'frontenda-blocks')}
-				</div>
-				<Button variant="tertiary" onClick={onClear}>
-					{__('Remove post', 'frontenda-blocks')}
-				</Button>
-			</div>
-		</div>
-	);
-}
-
 export default function ListItemEditor({
 	item,
 	index,
 	itemCount,
 	fields,
-	personOptions,
 	openLinkIndex,
 	setOpenLinkIndex,
 	updateItem,
@@ -92,7 +37,6 @@ export default function ListItemEditor({
 	index: number;
 	itemCount: number;
 	fields: ListItemFields;
-	personOptions: SelectOption[];
 	openLinkIndex: number | null;
 	setOpenLinkIndex: (index: number | null) => void;
 	updateItem: (index: number, item: ListItem) => void;
@@ -262,30 +206,6 @@ export default function ListItemEditor({
 				</div>
 			)}
 
-			{fields.post && (
-				<div className="grid gap-3 rounded-[1.25rem] bg-neutral-50 p-3">
-					<SelectControl
-						__next40pxDefaultSize
-						label={__('Post', 'frontenda-blocks')}
-						value={String(item.post ?? 0)}
-						options={personOptions}
-						onChange={(value: string) => {
-							updateItem(index, {
-								...item,
-								post: value === '0' ? null : Number(value),
-							});
-						}}
-					/>
-					{item.post ? (
-						<SelectedPostPreview
-							postId={item.post}
-							onClear={() => updateItem(index, { ...item, post: null })}
-						/>
-					) : (
-						<div className="type-small text-neutral-500">{__('No post selected yet.', 'frontenda-blocks')}</div>
-					)}
-				</div>
-			)}
 		</div>
 	);
 }

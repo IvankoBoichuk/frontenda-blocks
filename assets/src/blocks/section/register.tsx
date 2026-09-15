@@ -3,16 +3,15 @@ import sectionMetadata from '../../../../blocks/section/block.json';
 import { getSectionAllowedBlocks, getSectionTemplate } from './config';
 import { wp } from '@/editor/wp';
 import type { SectionAttributes } from '@/editor/types';
+import SectionSettings from '@/editor/panels/SectionSettings';
 
 const { createElement, Fragment } = wp.element;
 const { registerBlockType } = wp.blocks;
 const { InnerBlocks, InspectorControls, useBlockProps } = wp.blockEditor;
-const { PanelBody, SelectControl, TextControl } = wp.components;
-const { __ } = wp.i18n;
 
 type SectionBlockAttributes = Pick<
     SectionAttributes,
-    'variant' | 'layout' | 'layouts' | 'nickname' | 'anchor'
+    'variant' | 'layout' | 'layouts' | 'cardLayouts' | 'nickname' | 'anchor'
 >;
 
 export function registerSectionBlock(): void {
@@ -21,24 +20,9 @@ export function registerSectionBlock(): void {
         {
             edit: ({ attributes, setAttributes }: BlockEditProps<SectionBlockAttributes>) => {
                 const blockProps = useBlockProps();
-                const layouts = attributes.layouts ?? [];
-
                 return <>
                     <InspectorControls>
-                        <PanelBody title={__('Section settings', 'frontenda-blocks')} initialOpen>
-                            <TextControl
-                                label={__('Nickname', 'frontenda-blocks')}
-                                value={attributes.nickname ?? ''}
-                                onChange={(nickname: string) => setAttributes({ nickname })}
-                            />
-                            {layouts.length > 0 && <SelectControl
-                                __next40pxDefaultSize
-                                label={__('Layout', 'frontenda-blocks')}
-                                value={attributes.layout ?? layouts[0]?.value ?? ''}
-                                options={layouts}
-                                onChange={(layout: string) => setAttributes({ layout })}
-                            />}
-                        </PanelBody>
+                        <SectionSettings attributes={attributes} setAttributes={setAttributes} />
                     </InspectorControls>
                     <div {...blockProps}>
                         <InnerBlocks

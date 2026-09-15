@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "fa/reviews",
+  "title": "Reviews",
+  "category": "frontenda",
+  "icon": "format-chat",
+  "parent": ["fa/section"],
+  "attributes": {
+    "reviews": {
+      "type": "object",
+      "default": {
+        "source": "comment",
+        "mode": "automatic",
+        "commentIds": [],
+        "perPage": 6,
+        "order": "desc"
+      }
+    }
+  },
+  "supports": { "html": false, "reusable": false },
+  "editorScript": "frontenda-blocks-section-editor"
+}

@@ -15,6 +15,24 @@
 - `fa/list` — структуровані елементи повторюваного списку.
 - `fa/query` — автоматична або ручна вибірка записів довільного зареєстрованого post type.
 
+Variation `benefits` блока `fa/section` створює секцію з `fa/header`, `fa/text`, `fa/media` та `fa/list`. За замовчуванням вона має layout `First` зі значенням `1`.
+
+Variation `photogallery` блока `fa/section` створюється з вибраним блоком `fa/media` та layout `First` зі значенням `1`.
+
+Variation `reviews` блока `fa/section` містить `fa/header`, `fa/numbers` і `fa/reviews`. Блок reviews отримує лише схвалені WordPress-коментарі: automatic режим має налаштування кількості та порядку, а manual дозволяє знайти коментарі, вибрати їх і змінити порядок.
+
+Variation `faq` блока `fa/section` створюється з `fa/header` і `fa/list` та має layout `First` зі значенням `1`.
+
+У `fa/reviews` можна вибрати джерело: звичайні WordPress comments або WooCommerce product reviews. Вибір застосовується до automatic і manual запитів; у PHP доступні `$reviews->source()` та `$reviews->isProductReview()`.
+
+`SlotReviews::comments()` повертає масив типізованих `SlotComment`. Він надає getters `reviewId()`, `name()`, `location()`, `rating()`, `fullStars()`, `text()`, `decimal()`, `hasPartialStar()`, `partialStarFill()`, `totalEmptyStars()` і `gradientId()`.
+
+`SlotNumbers::items()` повертає масив типізованих `SlotNumber`. Значення `number()` формується з тексту дочірнього `fa/title`, `label()` — із тексту дочірнього `fa/text`, а `icon()` повертає `?Timber\Image` для attachment із дочірнього `core/image`.
+
+Атрибут секції `cardLayouts` передає доступні layout карток у `fa/list`. За замовчуванням він містить `From template` з порожнім значенням і `Numbered step` зі значенням `numbered-step`. Variation може перевизначити список через власний атрибут `cardLayouts` у форматі `[{ "label": "Cards", "value": "cards" }]`.
+
+У налаштуваннях `fa/list` поля картки вмикаються окремими чекбоксами: subtitle, title, text, image та icon. Layout `numbered-step` автоматично застосовує пресет лише з title і text; після цього набір полів можна змінити вручну для конкретного списку.
+
 Блок `core/button` всередині `fa/buttons` розширено налаштуваннями SVG attachment-іконки та її позиції `left/right`. Media Library picker показує лише `image/svg+xml`; інші MIME типи додатково відхиляються під час вибору та PHP-render. На frontend іконка рендериться як декоративне Timber-зображення всередині посилання кнопки.
 
 PHP-renderer формує `slots` і `sequence` з дерева дочірніх блоків. Шаблони секцій можуть використовувати нормалізовані значення `header`, `text`, `buttons`, `media` і `list` або отримувати всі входження через `slots`.

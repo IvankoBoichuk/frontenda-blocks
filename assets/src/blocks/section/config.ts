@@ -2,7 +2,7 @@ import sectionMetadata from '../../../../blocks/section/block.json';
 import { wp } from '@/editor/wp';
 import type { BlockTemplate } from '@/blocks/types';
 
-const SECTION_BLOCKS = ['fa/header', 'fa/text', 'fa/buttons', 'fa/media', 'fa/list', 'fa/query'];
+const SECTION_BLOCKS = ['fa/header', 'fa/text', 'fa/buttons', 'fa/media', 'fa/list', 'fa/query', 'fa/numbers', 'fa/reviews'];
 
 type VariationConfig = {
     template?: BlockTemplate;

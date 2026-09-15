@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Frontenda\Blocks;
 
+use Timber\Image;
+use Timber\Timber;
+use Throwable;
 use WP_Block;
 
 final class ContextBuilder
@@ -15,6 +18,8 @@ final class ContextBuilder
         'fa/media' => 'media',
         'fa/list' => 'list',
         'fa/query' => 'query',
+        'fa/numbers' => 'numbers',
+        'fa/reviews' => 'reviews',
     ];
 
     public function build(array $attributes, string $content, WP_Block $block): SectionContext
@@ -86,6 +91,8 @@ final class ContextBuilder
             'media' => $this->media($child, $attributes),
             'list' => $this->listSlot($child, $attributes),
             'query' => $this->querySlot($child, $attributes),
+            'numbers' => $this->numbersSlot($child, $attributes),
+            'reviews' => $this->reviewsSlot($child, $attributes),
             default => new Slot(
                 $name,
                 $child->name,
@@ -195,6 +202,16 @@ final class ContextBuilder
     {
         $list = is_array($attributes['list'] ?? null) ? $attributes['list'] : [];
         $layout = sanitize_key($list['layout'] ?? '');
+        $allowedFields = ['subttl', 'ttl', 'text', 'image', 'icon', 'link', 'post'];
+        $defaultFields = $layout === 'numbered-step'
+            ? ['ttl', 'text']
+            : ['subttl', 'ttl', 'text', 'image', 'icon'];
+        $requestedFields = is_array($list['fields'] ?? null)
+            ? array_values(array_filter($list['fields'], 'is_string'))
+            : null;
+        $fields = $requestedFields !== null
+            ? array_values(array_intersect($allowedFields, $requestedFields))
+            : $defaultFields;
         $textIfEmpty = sanitize_text_field($list['textIfEmpty'] ?? '');
 
         return new SlotList(
@@ -202,9 +219,10 @@ final class ContextBuilder
             $block->name,
             $attributes,
             $layout !== '' ? $layout : null,
+            $fields,
             $this->heading($list['ttl'] ?? null, 'h3'),
             $textIfEmpty !== '' ? $textIfEmpty : null,
-            $this->listItems($list['items'] ?? []),
+            $this->listItems($list['items'] ?? [], $fields),
         );
     }
 
@@ -235,8 +253,82 @@ final class ContextBuilder
         );
     }
 
+    private function reviewsSlot(WP_Block $block, array $attributes): SlotReviews
+    {
+        $reviews = is_array($attributes['reviews'] ?? null) ? $attributes['reviews'] : [];
+        $source = ($reviews['source'] ?? 'comment') === 'product_review' ? 'product_review' : 'comment';
+        $mode = ($reviews['mode'] ?? 'automatic') === 'manual' ? 'manual' : 'automatic';
+        $commentIds = array_values(array_unique(array_filter(array_map(
+            'absint',
+            is_array($reviews['commentIds'] ?? null) ? $reviews['commentIds'] : [],
+        ))));
+        $order = strtolower((string) ($reviews['order'] ?? 'desc')) === 'asc' ? 'ASC' : 'DESC';
+
+        return new SlotReviews(
+            name: 'reviews',
+            blockName: $block->name,
+            attributes: $attributes,
+            source: $source,
+            mode: $mode,
+            commentIds: $commentIds,
+            perPage: min(24, max(1, absint($reviews['perPage'] ?? 6))),
+            order: $order,
+        );
+    }
+
+    private function numbersSlot(WP_Block $block, array $attributes): SlotNumbers
+    {
+        $items = [];
+
+        foreach ($block->inner_blocks as $numberBlock) {
+            if ($numberBlock->name !== 'fa/number') {
+                continue;
+            }
+
+            $parts = [];
+            $icon = null;
+
+            foreach ($numberBlock->inner_blocks as $part) {
+                $parts[$part->name] = trim(wp_strip_all_tags($part->render()));
+
+                if ($part->name === 'core/image') {
+                    $icon = $this->timberImage(absint($part->parsed_block['attrs']['id'] ?? 0));
+                }
+            }
+
+            $items[] = new SlotNumber(
+                number: $parts['fa/title'] ?? '',
+                label: $parts['fa/text'] ?? '',
+                icon: $icon,
+            );
+        }
+
+        return new SlotNumbers(
+            name: 'numbers',
+            blockName: $block->name,
+            attributes: $attributes,
+            html: $this->nullableHtml($block->render()),
+            items: $items,
+        );
+    }
+
+    private function timberImage(int $attachmentId): ?Image
+    {
+        if ($attachmentId === 0 || ! class_exists(Timber::class)) {
+            return null;
+        }
+
+        try {
+            $image = Timber::get_image($attachmentId);
+
+            return $image instanceof Image ? $image : null;
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
     /** @return list<SlotListItem> */
-    private function listItems(mixed $items): array
+    private function listItems(mixed $items, array $fields): array
     {
         if (! is_array($items)) {
             return [];
@@ -244,7 +336,7 @@ final class ContextBuilder
 
         $mediaRenderer = new MediaRenderer();
 
-        return array_values(array_filter(array_map(static function (mixed $item) use ($mediaRenderer): ?SlotListItem {
+        return array_values(array_filter(array_map(static function (mixed $item) use ($mediaRenderer, $fields): ?SlotListItem {
             if (! is_array($item)) {
                 return null;
             }
@@ -253,14 +345,14 @@ final class ContextBuilder
             $iconId = absint($item['icon']['id'] ?? 0);
 
             return new SlotListItem(
-                title: sanitize_text_field($item['ttl']['text'] ?? ''),
-                subtitle: sanitize_text_field($item['subttl']['text'] ?? ''),
-                text: wp_kses_post($item['text'] ?? ''),
-                url: esc_url($item['link']['url'] ?? ''),
-                linkText: sanitize_text_field($item['link']['text'] ?? ''),
-                image: $mediaRenderer->attachment($imageId, 'large'),
-                icon: $mediaRenderer->attachment($iconId),
-                postId: absint($item['post'] ?? 0),
+                title: in_array('ttl', $fields, true) ? sanitize_text_field($item['ttl']['text'] ?? '') : '',
+                subtitle: in_array('subttl', $fields, true) ? sanitize_text_field($item['subttl']['text'] ?? '') : '',
+                text: in_array('text', $fields, true) ? wp_kses_post($item['text'] ?? '') : '',
+                url: in_array('link', $fields, true) ? esc_url($item['link']['url'] ?? '') : '',
+                linkText: in_array('link', $fields, true) ? sanitize_text_field($item['link']['text'] ?? '') : '',
+                image: in_array('image', $fields, true) ? $mediaRenderer->attachment($imageId, 'large') : '',
+                icon: in_array('icon', $fields, true) ? $mediaRenderer->attachment($iconId) : '',
+                postId: in_array('post', $fields, true) ? absint($item['post'] ?? 0) : 0,
                 meta: is_array($item['meta'] ?? null) ? $item['meta'] : [],
             );
         }, $items)));

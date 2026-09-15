@@ -5,7 +5,7 @@
   "title": "Numbers",
   "category": "frontenda",
   "icon": "editor-ol",
-  "parent": ["fa/text"],
+  "parent": ["fa/text", "fa/section"],
   "attributes": {},
   "supports": { "html": false, "reusable": false },
   "editorScript": "frontenda-blocks-section-editor"

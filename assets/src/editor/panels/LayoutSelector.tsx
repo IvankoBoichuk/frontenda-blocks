@@ -28,7 +28,6 @@ export default function LayoutSelector({
 			label={label}
 			value={value ?? ''}
 			options={[
-				{ label: __('Select layout', 'frontenda-blocks'), value: '' },
 				...layouts,
 			]}
 			onChange={(nextValue: string) => {

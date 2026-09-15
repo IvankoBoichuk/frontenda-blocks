@@ -5,6 +5,8 @@
 /** @var \Frontenda\Blocks\SlotMedia|null $media */
 /** @var \Frontenda\Blocks\SlotList|null $list */
 /** @var \Frontenda\Blocks\SlotQuery|null $query */
+/** @var \Frontenda\Blocks\SlotNumbers|null $numbers */
+/** @var \Frontenda\Blocks\SlotReviews|null $reviews */
 ?>
 <section <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
     <?php if ($header?->subtitle()?->html()) : ?>
@@ -32,6 +34,17 @@
         <ul class="fa-section-block__query">
             <?php foreach ($query->posts() as $post) : ?>
                 <li><a href="<?php echo esc_url($post->link()); ?>"><?php echo esc_html($post->title()); ?></a></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+    <?php echo $numbers?->html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+    <?php if ($reviews && ! $reviews->isEmpty()) : ?>
+        <ul class="fa-section-block__reviews">
+            <?php foreach ($reviews->comments() as $comment) : ?>
+                <li class="fa-section-block__review">
+                    <strong><?php echo esc_html($comment->name()); ?></strong>
+                    <div><?php echo wp_kses_post($comment->text()); ?></div>
+                </li>
             <?php endforeach; ?>
         </ul>
     <?php endif; ?>

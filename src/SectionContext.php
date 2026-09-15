@@ -94,6 +94,20 @@ final class SectionContext
         return $slot instanceof SlotQuery ? $slot : null;
     }
 
+    public function numbers(): ?SlotNumbers
+    {
+        $slot = $this->slots->first('numbers');
+
+        return $slot instanceof SlotNumbers ? $slot : null;
+    }
+
+    public function reviews(): ?SlotReviews
+    {
+        $slot = $this->slots->first('reviews');
+
+        return $slot instanceof SlotReviews ? $slot : null;
+    }
+
     public function sequence(): array
     {
         return $this->sequence;
@@ -141,6 +155,8 @@ final class SectionContext
         $media = $this->media();
         $list = $this->list();
         $query = $this->query();
+        $numbers = $this->numbers();
+        $reviews = $this->reviews();
 
         return [
             'attributes' => $this->attributes,
@@ -162,6 +178,8 @@ final class SectionContext
             'media' => $media,
             'list' => $list,
             'query' => $query,
+            'numbers' => $numbers,
+            'reviews' => $reviews,
             'wrapper_attributes' => $this->wrapperAttributes,
             'block' => $this->block,
             'context' => $this,
