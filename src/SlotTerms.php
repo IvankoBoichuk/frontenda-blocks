@@ -94,16 +94,25 @@ final class SlotTerms extends Slot
     }
 
     /**
-     * Total number of terms the automatic query matches, ignoring `number`.
+     * Size of the pool this slot draws from: the taxonomy narrowed by
+     * `hide_empty` and `name__like`, ignoring `number` and the manual
+     * `include` list.
      *
-     * A "load more" control needs to know whether anything remains beyond the
-     * rendered page, which terms() alone cannot answer.
+     * A "load more" control needs to know how much exists beyond what was
+     * rendered. terms() cannot answer that, and in manual mode neither can
+     * arguments(), whose `include` makes the count equal to the page itself.
      */
     public function total(): int
     {
-        $arguments = $this->arguments();
-        unset($arguments['number'], $arguments['offset'], $arguments['orderby'], $arguments['order']);
-        $arguments['fields'] = 'count';
+        $arguments = [
+            'taxonomy' => $this->taxonomy,
+            'hide_empty' => $this->hideEmpty,
+            'fields' => 'count',
+        ];
+
+        if ($this->nameLike !== '') {
+            $arguments['name__like'] = $this->nameLike;
+        }
 
         $count = get_terms($arguments);
 
