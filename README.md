@@ -14,6 +14,7 @@
 - `fa/media` — конфігурація зображення, галереї або відео;
 - `fa/list` — структуровані елементи повторюваного списку.
 - `fa/query` — автоматична або ручна вибірка записів довільного зареєстрованого post type.
+- `fa/terms` — автоматична або ручна вибірка термінів довільної зареєстрованої таксономії.
 
 Variation `benefits` блока `fa/section` створює секцію з `fa/header`, `fa/text`, `fa/media` та `fa/list`. За замовчуванням вона має layout `First` зі значенням `1`.
 
@@ -22,6 +23,10 @@ Variation `photogallery` блока `fa/section` створюється з ви�
 Variation `reviews` блока `fa/section` містить `fa/header`, `fa/numbers` і `fa/reviews`. Блок reviews отримує лише схвалені WordPress-коментарі: automatic режим має налаштування кількості та порядку, а manual дозволяє знайти коментарі, вибрати їх і змінити порядок.
 
 Variation `faq` блока `fa/section` створюється з `fa/header` і `fa/list` та має layout `First` зі значенням `1`.
+
+Variation `products` блока `fa/section` створюється з `fa/header`, `fa/text`, `fa/query` і `fa/buttons`. Layout `Slider` зі значенням `1` і layout `Grid` зі значенням `2` описують дві подачі одного набору записів; розмітку карток задає шаблон теми.
+
+Variation `cities` блока `fa/section` створюється з `fa/header`, `fa/text`, `fa/terms` і `fa/buttons` та має layout `First` зі значенням `1`.
 
 У `fa/reviews` можна вибрати джерело: звичайні WordPress comments або WooCommerce product reviews. Вибір застосовується до automatic і manual запитів; у PHP доступні `$reviews->source()` та `$reviews->isProductReview()`.
 
@@ -208,7 +213,7 @@ foreach ($list?->items() ?? [] as $item) {
 
 Стандартні блоки представлені конкретними типами `SlotHeader`, `SlotTitle`, `SlotSubtitle`, `SlotText`, `SlotButtons`, `SlotMedia`, `SlotList` і `SlotQuery`. Елементи списку мають тип `SlotListItem`. Спільний базовий `Slot` надає getters `name()`, `blockName()`, `attributes()`, `html()` і `data()`, а конкретні типи додають власне API.
 
-`SectionContext` надає типізовані getters `header()`, `text()`, `buttons()`, `media()`, `list()` і `query()`. Універсальна колекція `slots()` залишається для додаткових блоків, зареєстрованих темою.
+`SectionContext` надає типізовані getters `header()`, `text()`, `buttons()`, `media()`, `list()`, `query()` і `terms()`. Універсальна колекція `slots()` залишається для додаткових блоків, зареєстрованих темою.
 
 ### Query slot
 
@@ -222,6 +227,35 @@ $query = $context->query();
 foreach ($query?->posts() ?? [] as $post) {
     echo esc_html($post->title());
 }
+```
+
+### Terms slot
+
+`fa/query` вміє лише post types, тому вибірка термінів таксономії винесена в окремий блок `fa/terms`.
+У редакторі він дозволяє вибрати automatic або manual режим і будь-яку публічну таксономію.
+Automatic режим має кількість, сортування, перемикач `hide_empty` і необов'язковий фільтр
+`Name contains` (мапиться на `name__like`); manual режим зберігає вибрані терміни та їх порядок.
+
+У шаблоні terms повертає типізовані Timber terms:
+
+```php
+$terms = $context->terms();
+
+foreach ($terms?->terms() ?? [] as $term) {
+    echo esc_html($term->name());
+}
+```
+
+`SlotTerms::total()` повертає загальну кількість термінів, які відповідають automatic-запиту,
+ігноруючи `number` — це потрібно кнопці «показати ще», щоб знати, чи лишилось щось за межами
+відрендереної сторінки.
+
+Аргументи `get_terms()` можна перевизначити фільтром:
+
+```php
+add_filter('frontenda_blocks/terms/args', function (array $args, \Frontenda\Blocks\SlotTerms $terms): array {
+    return $args;
+}, 10, 2);
 ```
 
 Аргументи `Timber::get_posts()` можна доповнити для конкретного сайту:

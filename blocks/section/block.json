@@ -7,7 +7,11 @@
   "description": "Dynamic content section with subtitle, title, text, optional image, and list items.",
   "category": "frontenda",
   "icon": "layout",
-  "keywords": ["section", "content", "benefits"],
+  "keywords": [
+    "section",
+    "content",
+    "benefits"
+  ],
   "supports": {
     "html": false,
     "anchor": true,
@@ -20,47 +24,141 @@
   },
   "faConfig": {
     "listItemFields": {
-      "default": ["subttl", "ttl", "text", "image", "icon"]
+      "default": [
+        "subttl",
+        "ttl",
+        "text",
+        "image",
+        "icon"
+      ]
     },
     "variations": {
       "offer": {
         "template": [
-          ["fa/header", {}],
-          ["fa/text", {}],
-          ["fa/buttons", {}],
-          ["fa/media", {}]
+          [
+            "fa/header",
+            {}
+          ],
+          [
+            "fa/text",
+            {}
+          ],
+          [
+            "fa/buttons",
+            {}
+          ],
+          [
+            "fa/media",
+            {}
+          ]
         ]
       },
       "benefits": {
         "template": [
-          ["fa/header", {}],
-          ["fa/text", {}],
-          ["fa/media", {}],
-          ["fa/list", {}]
+          [
+            "fa/header",
+            {}
+          ],
+          [
+            "fa/text",
+            {}
+          ],
+          [
+            "fa/media",
+            {}
+          ],
+          [
+            "fa/list",
+            {}
+          ]
         ]
       },
       "photogallery": {
         "template": [
-          ["fa/media", {}]
+          [
+            "fa/media",
+            {}
+          ]
         ]
       },
       "numbers": {
         "template": [
-          ["fa/header", {}],
-          ["fa/numbers", {}]
+          [
+            "fa/header",
+            {}
+          ],
+          [
+            "fa/numbers",
+            {}
+          ]
         ]
       },
       "reviews": {
         "template": [
-          ["fa/header", {}],
-          ["fa/numbers", {}],
-          ["fa/reviews", {}]
+          [
+            "fa/header",
+            {}
+          ],
+          [
+            "fa/numbers",
+            {}
+          ],
+          [
+            "fa/reviews",
+            {}
+          ]
         ]
       },
       "faq": {
         "template": [
-          ["fa/header", {}],
-          ["fa/list", {}]
+          [
+            "fa/header",
+            {}
+          ],
+          [
+            "fa/list",
+            {}
+          ]
+        ]
+      },
+      "products": {
+        "template": [
+          [
+            "fa/header",
+            {}
+          ],
+          [
+            "fa/text",
+            {}
+          ],
+          [
+            "fa/query",
+            {}
+          ],
+          [
+            "fa/buttons",
+            {}
+          ]
+        ]
+      },
+      "cities": {
+        "template": [
+          [
+            "fa/header",
+            {}
+          ],
+          [
+            "fa/text",
+            {}
+          ],
+          [
+            "fa/terms",
+            {}
+          ],
+          [
+            "fa/buttons",
+            {}
+          ]
         ]
       }
     }
@@ -75,13 +173,23 @@
         "variant": "offer",
         "layout": "1",
         "layouts": [
-          { "label": "First", "value": "1" },
-          { "label": "Second", "value": "2" }
+          {
+            "label": "First",
+            "value": "1"
+          },
+          {
+            "label": "Second",
+            "value": "2"
+          }
         ]
       },
       "isDefault": true,
-      "isActive": ["variant"],
-      "scope": ["inserter"]
+      "isActive": [
+        "variant"
+      ],
+      "scope": [
+        "inserter"
+      ]
     },
     {
       "name": "benefits",
@@ -92,11 +200,18 @@
         "variant": "benefits",
         "layout": "1",
         "layouts": [
-          { "label": "First", "value": "1" }
+          {
+            "label": "First",
+            "value": "1"
+          }
         ]
       },
-      "isActive": ["variant"],
-      "scope": ["inserter"]
+      "isActive": [
+        "variant"
+      ],
+      "scope": [
+        "inserter"
+      ]
     },
     {
       "name": "photogallery",
@@ -107,11 +222,18 @@
         "variant": "photogallery",
         "layout": "1",
         "layouts": [
-          { "label": "First", "value": "1" }
+          {
+            "label": "First",
+            "value": "1"
+          }
         ]
       },
-      "isActive": ["variant"],
-      "scope": ["inserter"]
+      "isActive": [
+        "variant"
+      ],
+      "scope": [
+        "inserter"
+      ]
     },
     {
       "name": "numbers",
@@ -122,11 +244,18 @@
         "variant": "numbers",
         "layout": "1",
         "layouts": [
-          { "label": "First", "value": "1" }
+          {
+            "label": "First",
+            "value": "1"
+          }
         ]
       },
-      "isActive": ["variant"],
-      "scope": ["inserter"]
+      "isActive": [
+        "variant"
+      ],
+      "scope": [
+        "inserter"
+      ]
     },
     {
       "name": "reviews",
@@ -137,11 +266,18 @@
         "variant": "reviews",
         "layout": "1",
         "layouts": [
-          { "label": "First", "value": "1" }
+          {
+            "label": "First",
+            "value": "1"
+          }
         ]
       },
-      "isActive": ["variant"],
-      "scope": ["inserter"]
+      "isActive": [
+        "variant"
+      ],
+      "scope": [
+        "inserter"
+      ]
     },
     {
       "name": "faq",
@@ -152,11 +288,66 @@
         "variant": "faq",
         "layout": "1",
         "layouts": [
-          { "label": "First", "value": "1" }
+          {
+            "label": "First",
+            "value": "1"
+          }
         ]
       },
-      "isActive": ["variant"],
-      "scope": ["inserter"]
+      "isActive": [
+        "variant"
+      ],
+      "scope": [
+        "inserter"
+      ]
+    },
+    {
+      "name": "products",
+      "title": "Products",
+      "icon": "cart",
+      "description": "Product section driven by fa/query.",
+      "attributes": {
+        "variant": "products",
+        "layout": "1",
+        "layouts": [
+          {
+            "label": "Slider",
+            "value": "1"
+          },
+          {
+            "label": "Grid",
+            "value": "2"
+          }
+        ]
+      },
+      "isActive": [
+        "variant"
+      ],
+      "scope": [
+        "inserter"
+      ]
+    },
+    {
+      "name": "cities",
+      "title": "Cities",
+      "icon": "location-alt",
+      "description": "Taxonomy term section driven by fa/terms.",
+      "attributes": {
+        "variant": "cities",
+        "layout": "1",
+        "layouts": [
+          {
+            "label": "Layout 1",
+            "value": "1"
+          }
+        ]
+      },
+      "isActive": [
+        "variant"
+      ],
+      "scope": [
+        "inserter"
+      ]
     }
   ],
   "attributes": {
@@ -186,8 +377,14 @@
     "cardLayouts": {
       "type": "array",
       "default": [
-        { "label": "From template", "value": "" },
-        { "label": "Numbered step", "value": "numbered-step" }
+        {
+          "label": "From template",
+          "value": ""
+        },
+        {
+          "label": "Numbered step",
+          "value": "numbered-step"
+        }
       ]
     },
     "meta": {

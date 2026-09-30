@@ -96,6 +96,21 @@ export type QueryAttributes = {
     query?: QuerySettings;
 };
 
+export type TermsSettings = {
+    mode: 'automatic' | 'manual';
+    taxonomy: string;
+    termIds: number[];
+    perPage: number;
+    orderBy: 'name' | 'slug' | 'count' | 'term_order';
+    order: 'asc' | 'desc';
+    hideEmpty: boolean;
+    nameLike: string;
+};
+
+export type TermsAttributes = {
+    terms?: TermsSettings;
+};
+
 export type ReviewsSettings = {
     source: 'comment' | 'product_review';
     mode: 'automatic' | 'manual';

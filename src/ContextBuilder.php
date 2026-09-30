@@ -18,6 +18,7 @@ final class ContextBuilder
         'fa/media' => 'media',
         'fa/list' => 'list',
         'fa/query' => 'query',
+        'fa/terms' => 'terms',
         'fa/numbers' => 'numbers',
         'fa/reviews' => 'reviews',
     ];
@@ -91,6 +92,7 @@ final class ContextBuilder
             'media' => $this->media($child, $attributes),
             'list' => $this->listSlot($child, $attributes),
             'query' => $this->querySlot($child, $attributes),
+            'terms' => $this->termsSlot($child, $attributes),
             'numbers' => $this->numbersSlot($child, $attributes),
             'reviews' => $this->reviewsSlot($child, $attributes),
             default => new Slot(
@@ -250,6 +252,37 @@ final class ContextBuilder
             perPage: min(24, max(1, absint($query['perPage'] ?? 6))),
             orderBy: $orderBy,
             order: $order,
+        );
+    }
+
+    private function termsSlot(WP_Block $block, array $attributes): SlotTerms
+    {
+        $terms = is_array($attributes['terms'] ?? null) ? $attributes['terms'] : [];
+        $mode = ($terms['mode'] ?? 'automatic') === 'manual' ? 'manual' : 'automatic';
+        $taxonomy = sanitize_key($terms['taxonomy'] ?? 'category');
+        $taxonomy = taxonomy_exists($taxonomy) ? $taxonomy : 'category';
+        $termIds = array_values(array_unique(array_filter(array_map(
+            'absint',
+            is_array($terms['termIds'] ?? null) ? $terms['termIds'] : [],
+        ))));
+        $orderBy = sanitize_key($terms['orderBy'] ?? 'name');
+        $orderBy = in_array($orderBy, ['name', 'slug', 'count', 'term_order', 'include'], true)
+            ? $orderBy
+            : 'name';
+        $order = strtolower((string) ($terms['order'] ?? 'asc')) === 'desc' ? 'DESC' : 'ASC';
+
+        return new SlotTerms(
+            name: 'terms',
+            blockName: $block->name,
+            attributes: $attributes,
+            mode: $mode,
+            taxonomy: $taxonomy,
+            termIds: $termIds,
+            perPage: min(96, max(1, absint($terms['perPage'] ?? 9))),
+            orderBy: $orderBy,
+            order: $order,
+            hideEmpty: (bool) ($terms['hideEmpty'] ?? true),
+            nameLike: sanitize_text_field((string) ($terms['nameLike'] ?? '')),
         );
     }
 

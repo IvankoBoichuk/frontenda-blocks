@@ -5,6 +5,7 @@
 /** @var \Frontenda\Blocks\SlotMedia|null $media */
 /** @var \Frontenda\Blocks\SlotList|null $list */
 /** @var \Frontenda\Blocks\SlotQuery|null $query */
+/** @var \Frontenda\Blocks\SlotTerms|null $terms */
 /** @var \Frontenda\Blocks\SlotNumbers|null $numbers */
 /** @var \Frontenda\Blocks\SlotReviews|null $reviews */
 ?>
@@ -34,6 +35,13 @@
         <ul class="fa-section-block__query">
             <?php foreach ($query->posts() as $post) : ?>
                 <li><a href="<?php echo esc_url($post->link()); ?>"><?php echo esc_html($post->title()); ?></a></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+    <?php if ($terms && ! $terms->isEmpty()) : ?>
+        <ul class="fa-section-block__terms">
+            <?php foreach ($terms->terms() as $term) : ?>
+                <li><a href="<?php echo esc_url($term->link()); ?>"><?php echo esc_html($term->name()); ?></a></li>
             <?php endforeach; ?>
         </ul>
     <?php endif; ?>
