@@ -42,6 +42,14 @@ d=$(mk); cd "$d"; git tag v1.2.3; c "refactor: x
 
 BREAKING CHANGE: y";                                                      expect "BREAKING CHANGE footer" 2.0.0
 d=$(mk); cd "$d"; git tag v1.0.0; c "chore: a"; c "docs: b";             expect "chore/docs only" NONE
+# A body that describes the convention must not trigger it: BREAKING CHANGE is
+# a footer, so it only counts at the start of a line.
+d=$(mk); cd "$d"; git tag v1.0.0; c "feat: ci
+
+rules -- !:/BREAKING CHANGE: major, feat: minor";                         expect "breaking marker only as prose" 1.1.0
+d=$(mk); cd "$d"; git tag v1.0.0; c "feat: x
+
+BREAKING-CHANGE: y";                                                      expect "BREAKING-CHANGE hyphen footer" 2.0.0
 d=$(mk); cd "$d"; git tag v1.0.0; c "feat: tw"; c 'Revert "feat: tw"';   expect "feat then revert" NONE
 d=$(mk); cd "$d"; git tag v1.0.0; c "feat: a"; c "feat: b"; c 'Revert "feat: b"'; expect "revert one of two feats" 1.1.0
 d=$(mk); cd "$d"; c "fix: a";                                            expect "no tag -> from 0.0.0" 0.0.1
