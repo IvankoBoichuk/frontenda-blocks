@@ -92,7 +92,10 @@ steps:
       - git config user.email 'woodpecker@users.noreply.github.com'
       - git remote set-url origin "https://x-access-token:$${GITHUB_TOKEN}@github.com/$${CI_REPO}.git"
       - git add frontenda-blocks.php package.json
-      - git diff --cached --quiet || git commit -m "chore(release): v$version [skip ci]"
+      # Single-quoted: the message contains ': ', which YAML would otherwise
+      # read as a key/value pair and hand Woodpecker a map where a command
+      # string belongs.
+      - 'git diff --cached --quiet || git commit -m "chore(release): v$version [skip ci]"'
       - git tag "v$version"
       - git push origin "HEAD:refs/heads/$${CI_COMMIT_BRANCH}"
       - git push origin "refs/tags/v$version"
