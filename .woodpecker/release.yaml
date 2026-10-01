@@ -1,0 +1,117 @@
+when:
+  - event: push
+    branch: main
+  - event: manual
+
+depends_on:
+  - test
+
+# scripts/next-version.ts derives the version from the last v* tag, so the clone
+# has to carry the full history and the tags. Woodpecker clones shallow and
+# without tags by default, which would make `git describe` fail and every
+# release look like the first one.
+clone:
+  - name: clone
+    image: woodpeckerci/plugin-git
+    settings:
+      partial: false
+      tags: true
+
+# Secrets are referenced with a doubled dollar sign in commands, e.g.
+# $${GITHUB_TOKEN}. Woodpecker runs its own brace-substitution pass over this
+# file before the shell sees it, so a single dollar sign would be consumed there
+# and reach the command empty. That pass covers comments too: never write a
+# brace expression here whose contents are not a real variable name.
+variables:
+  - &bun_image oven/bun:1
+  - &release_env
+    GITHUB_TOKEN:
+      from_secret: github_token
+
+steps:
+  # Writes .next-version and .release-notes.md only when the commits since the
+  # last tag contain a feat/fix/breaking change. Every step below stands down
+  # when that file is absent, so a push of chore/docs/refactor work publishes
+  # nothing and costs one step.
+  - name: next-version
+    image: *bun_image
+    commands:
+      - bun run scripts/next-version.ts
+
+  - name: build
+    image: *bun_image
+    commands:
+      - test -f .next-version || { echo 'No release due; skipping.'; exit 0; }
+      - bun install --frozen-lockfile
+      - bun run check
+      - bun run build
+
+  # blocks/section/build/ is gitignored, so the archive is the only place the
+  # compiled editor bundle is published. assets/src is dropped: it is the input
+  # to that bundle, not something WordPress loads.
+  - name: package
+    image: alpine:3
+    commands:
+      - test -f .next-version || { echo 'No release due; skipping.'; exit 0; }
+      - apk add --no-cache rsync zip
+      - version=$(cat .next-version)
+      - mkdir -p /tmp/pkg/frontenda-blocks
+      - |
+        rsync -a ./ /tmp/pkg/frontenda-blocks/ \
+          --exclude='.git/' \
+          --exclude='.github/' \
+          --exclude='.woodpecker/' \
+          --exclude='node_modules/' \
+          --exclude='vendor/' \
+          --exclude='assets/src/' \
+          --exclude='scripts/' \
+          --exclude='coverage/' \
+          --exclude='.next-version' \
+          --exclude='.release-notes.md' \
+          --exclude='*.log'
+      - (cd /tmp/pkg && zip -qr "$${CI_WORKSPACE}/frontenda-blocks-v$version.zip" frontenda-blocks)
+      - ls -l "frontenda-blocks-v$version.zip"
+
+  # The tag is what the consuming site resolves `frontenda/frontenda-blocks`
+  # against, so it has to point at the commit that carries the bumped header --
+  # hence commit first, then tag that commit.
+  #
+  # [skip ci] keeps this push from starting another pipeline. The script is
+  # idempotent anyway (after v1.1.0 is tagged there are no feat/fix commits
+  # after it, so a rerun does nothing), but there is no reason to spend a build
+  # finding that out.
+  - name: publish
+    image: alpine:3
+    environment: *release_env
+    commands:
+      - test -f .next-version || { echo 'No release due; skipping.'; exit 0; }
+      - test -n "$${GITHUB_TOKEN}"
+      - apk add --no-cache git curl jq
+      - version=$(cat .next-version)
+      - git config user.name 'woodpecker[bot]'
+      - git config user.email 'woodpecker@users.noreply.github.com'
+      - git remote set-url origin "https://x-access-token:$${GITHUB_TOKEN}@github.com/$${CI_REPO}.git"
+      - git add frontenda-blocks.php package.json
+      - git diff --cached --quiet || git commit -m "chore(release): v$version [skip ci]"
+      - git tag "v$version"
+      - git push origin "HEAD:refs/heads/$${CI_COMMIT_BRANCH}"
+      - git push origin "refs/tags/v$version"
+      - |
+        payload=$(jq -n --arg tag "v$version" --rawfile body .release-notes.md \
+          '{tag_name:$tag, name:$tag, body:$body, draft:false, prerelease:false}')
+        release_id=$(curl -sS --fail-with-body -X POST \
+          -H "Authorization: Bearer $${GITHUB_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "https://api.github.com/repos/$${CI_REPO}/releases" \
+          -d "$payload" | jq -r '.id')
+        test -n "$release_id" -a "$release_id" != null
+      - |
+        curl -sS --fail-with-body -X POST \
+          -H "Authorization: Bearer $${GITHUB_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "Content-Type: application/zip" \
+          --data-binary "@frontenda-blocks-v$version.zip" \
+          "https://uploads.github.com/repos/$${CI_REPO}/releases/$release_id/assets?name=frontenda-blocks-v$version.zip" \
+          > /dev/null
+      - echo "Released v$version"

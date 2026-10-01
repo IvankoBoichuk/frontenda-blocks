@@ -30,3 +30,7 @@ Thumbs.db
 # Test and coverage output
 coverage/
 .phpunit.result.cache
+
+# Release pipeline hand-off (see .woodpecker/release.yaml)
+.next-version
+.release-notes.md

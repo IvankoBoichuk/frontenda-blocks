@@ -1,0 +1,39 @@
+when:
+  - event: [push, pull_request, manual]
+
+# The steps share one workspace volume, so node_modules installed here is still
+# there for the steps below.
+steps:
+  - name: install
+    image: &bun_image oven/bun:1
+    commands:
+      - bun install --frozen-lockfile
+
+  - name: typecheck
+    image: *bun_image
+    commands:
+      - bun run typecheck
+
+  # Catches a variation declared in block.json without a matching faConfig entry,
+  # and duplicate variation names. Cheap, and the editor fails confusingly without it.
+  - name: check
+    image: *bun_image
+    commands:
+      - bun run check
+
+  # Builds throwaway repos and asserts the version the release pipeline would
+  # pick, including that a rerun changes nothing. Worth running here: the number
+  # it computes is what consumers resolve against, and it is only exercised for
+  # real once per release.
+  - name: version-logic
+    image: *bun_image
+    commands:
+      - command -v git >/dev/null || { apt-get update -qq && apt-get install -y -qq git; }
+      - scripts/next-version.test.sh scripts/next-version.ts
+
+  # The release pipeline builds this anyway, but only after test has passed, so a
+  # broken bundle would otherwise surface halfway through a release.
+  - name: build
+    image: *bun_image
+    commands:
+      - bun run build

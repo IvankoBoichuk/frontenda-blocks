@@ -85,7 +85,41 @@ bun install
 bun run build
 ```
 
-Згенеровані директорії `blocks/section/build/` і `dist/` не зберігаються в Git. Під час публікації GitHub Release workflow самостійно збирає assets, створює ZIP плагіна, зберігає його як workflow artifact і прикріплює до релізу.
+Згенеровані директорії `blocks/section/build/` і `dist/` не зберігаються в Git.
+
+## CI і релізи
+
+Усім володіє Woodpecker; GitHub Actions (`.github/workflows/release.yml`)
+лишився ручним запасним варіантом — його запускають із тегом, який уже існує,
+щоб перезібрати й перечепити архів.
+
+`.woodpecker/test.yaml` на кожен push і pull request: `typecheck`, `check`
+(дублікати variations і відсутні `faConfig` записи) і `build`.
+
+`.woodpecker/release.yaml` на push у `main`, з `depends_on: test`:
+
+1. `scripts/next-version.ts` рахує наступну версію з conventional commits після
+   останнього тега `v*` — `!:` або `BREAKING CHANGE:` дає major, `feat:` minor,
+   `fix:` patch. Пара `Revert "<subject>"` і скасований нею коміт відкидаються,
+   тому зревертована фіча не тягне реліз угору й не потрапляє в нотатки.
+2. Версія пишеться в хедер `frontenda-blocks.php` і в `package.json`. У
+   `composer.json` поля `version` немає навмисно — Composer читає git-тег, і саме
+   проти нього сайт резолвить `frontenda/frontenda-blocks`.
+3. Збираються assets, пакується ZIP (без `.github`, `.woodpecker`, `scripts`,
+   `assets/src`, `node_modules`).
+4. Коміт `chore(release): vX.Y.Z [skip ci]`, тег, GitHub Release із
+   згенерованими нотатками і причепленим архівом.
+
+Версія рахується **від тега, а не від файлів** — конвеєр бігає на кожен push у
+`main`, і читання хедера накручувало б власний попередній бамп. Тому повторний
+запуск на тому самому коміті дає те саме число й нічого не змінює.
+
+Push, у якому немає жодного `feat`/`fix`/breaking коміта, нічого не випускає:
+крок `next-version` не створює `.next-version`, а решта кроків за його
+відсутністю зупиняються.
+
+Потрібен один секрет — `github_token` (scope `repo`) для пуша тега й створення
+релізу.
 
 ## Додавання variation
 
