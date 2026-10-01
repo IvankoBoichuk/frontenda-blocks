@@ -24,6 +24,9 @@ clone:
 # brace expression here whose contents are not a real variable name.
 variables:
   - &bun_image oven/bun:1
+  # The bun image ships without git, and next-version.ts derives everything from
+  # `git describe`, so the step installs it before running.
+  - &install_git 'command -v git >/dev/null || { apt-get update -qq && apt-get install -y -qq git; }'
   - &release_env
     GITHUB_TOKEN:
       from_secret: github_token
@@ -36,6 +39,7 @@ steps:
   - name: next-version
     image: *bun_image
     commands:
+      - *install_git
       - bun run scripts/next-version.ts
 
   - name: build

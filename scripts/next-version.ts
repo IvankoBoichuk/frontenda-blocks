@@ -35,12 +35,37 @@ function git(...args: string[]): string {
     return execFileSync('git', args, { encoding: 'utf8' }).trim();
 }
 
+/**
+ * The bun images ship without git, and every version this script computes comes
+ * from `git describe`, so say so plainly here rather than letting a downstream
+ * call fail with a bare ENOENT.
+ */
+function assertGitAvailable(): void {
+    try {
+        execFileSync('git', ['--version'], { stdio: 'ignore' });
+    } catch {
+        throw new Error(
+            'git is not on PATH. This script reads tags and commits, so the pipeline step '
+                + 'has to install it (the oven/bun image ships without git).',
+        );
+    }
+}
+
 /** The last v* tag reachable from HEAD, or null when the repo has never been tagged. */
 function lastTag(): string | null {
     try {
         return git('describe', '--tags', '--abbrev=0', '--match', 'v*') || null;
-    } catch {
-        return null;
+    } catch (error) {
+        // `git describe` exits 128 when nothing matches, which is a legitimate
+        // first release. Everything else -- git missing, not a repository, a
+        // clone without tags -- must not be read as "never tagged": that would
+        // silently restart numbering from 0.0.0 and publish a version far below
+        // the one already released.
+        if ((error as { status?: number }).status === 128) {
+            return null;
+        }
+
+        throw error;
     }
 }
 
@@ -92,7 +117,10 @@ function detectBump(messages: string[]): number {
     let level = 0;
 
     for (const message of messages) {
-        if (/(^|\n)[a-z]+(\([^)]+\))?!: /i.test(message) || /BREAKING CHANGE:/i.test(message)) {
+        // Both markers have to sit at the start of a line: `BREAKING CHANGE:`
+        // is a footer per the convention, and matching it anywhere would let a
+        // commit body that merely describes the rules trigger a major release.
+        if (/(^|\n)[a-z]+(\([^)]+\))?!: /i.test(message) || /(^|\n)BREAKING[ -]CHANGE: /i.test(message)) {
             level = Math.max(level, 3);
             continue;
         }
@@ -165,6 +193,8 @@ function clearOutputs(): void {
 }
 
 function main(): void {
+    assertGitAvailable();
+
     const tag = lastTag();
     const baseVersion = tag ? tag.replace(/^v/, '') : '0.0.0';
     const messages = dropReverted(commitsSince(tag));
