@@ -46,6 +46,8 @@ final class MediaRenderer
             'srcset' => $image->srcset($size),
             'sizes' => $image->img_sizes($size),
             'alt' => $image->alt() ?? '',
+            'width' => $image->width(),
+            'height' => $image->height(),
             'loading' => 'lazy',
             'decoding' => 'async',
         ]) . '>';

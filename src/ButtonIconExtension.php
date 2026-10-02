@@ -53,9 +53,18 @@ final class ButtonIconExtension
         $processor->add_class('fa-button--has-icon');
         $processor->add_class('fa-button--icon-' . $position);
         $content = $processor->get_updated_html();
+        // Both or neither: a lone width reserves nothing, and an SVG whose
+        // metadata carries no dimensions would otherwise print width="0".
+        $iconWidth = (int) $image->width();
+        $iconHeight = (int) $image->height();
+        $iconSize = $iconWidth > 0 && $iconHeight > 0
+            ? sprintf(' width="%d" height="%d"', $iconWidth, $iconHeight)
+            : '';
+
         $icon = sprintf(
-            '<img src="%s" class="fa-button__icon" alt="" aria-hidden="true" loading="lazy" decoding="async">',
-            esc_url($image->src())
+            '<img src="%s" class="fa-button__icon" alt="" aria-hidden="true"%s loading="lazy" decoding="async">',
+            esc_url($image->src()),
+            $iconSize
         );
 
         if ($position === 'right') {
