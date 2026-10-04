@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Frontenda Blocks
  * Description: Reusable dynamic section block with extensible variants and layouts.
- * Version: 1.1.1
+ * Version: 1.1.2
  * Requires at least: 6.5
  * Requires PHP: 8.1
  * Author: Frontenda
