@@ -45,12 +45,28 @@ final class MediaRenderer
             'src' => $image->src($size),
             'srcset' => $image->srcset($size),
             'sizes' => $image->img_sizes($size),
-            'alt' => $image->alt() ?? '',
+            'alt' => $this->alt($image),
             'width' => $image->width(),
             'height' => $image->height(),
             'loading' => 'lazy',
             'decoding' => 'async',
         ]) . '>';
+    }
+
+    // Timber hands back null or an empty string when the attachment carries no
+    // alt text, which would put alt="" on a content image. Fall back to the
+    // attachment title, then to the site name, so the attribute is never empty.
+    private function alt(Image $image): string
+    {
+        $alt = trim((string) $image->alt());
+
+        if ($alt !== '') {
+            return $alt;
+        }
+
+        $title = trim((string) $image->title());
+
+        return $title !== '' ? $title : (string) get_bloginfo('name');
     }
 
     private function getImage(int $attachmentId): ?Image
@@ -70,7 +86,7 @@ final class MediaRenderer
     {
         $attributes = [
             'src' => $image->src(),
-            'alt' => $image->alt() ?? '',
+            'alt' => $this->alt($image),
             'class' => 'fa-media__image',
             'width' => $image->width(),
             'height' => $image->height(),
